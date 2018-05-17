@@ -119,7 +119,7 @@ callWithJQuery ($) ->
         replaceClass = (element, replaceClassName, byClassName) ->
             removeClass element, replaceClassName
             addClass element, byClassName
-        # Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- End 
+        # Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- End
 
         createElement = (elementType, className, textContent, attributes, eventHandlers) ->
             e = document.createElement elementType
@@ -137,10 +137,10 @@ callWithJQuery ($) ->
             headers = children: []
             row = 0
             keysArr.reduce(
-                (val0, k0) => 
+                (val0, k0) =>
                     col = 0
                     k0.reduce(
-                        (acc, curVal, curIdx, arr) => 
+                        (acc, curVal, curIdx, arr) =>
                             if not acc[curVal]
                                 key = k0.slice 0, col+1
                                 acc[curVal] =
@@ -149,22 +149,22 @@ callWithJQuery ($) ->
                                     descendants: 0
                                     children: []
                                     text: curVal
-                                    key: key 
-                                    flatKey: key.join String.fromCharCode(0) 
-                                    firstLeaf: null 
+                                    key: key
+                                    flatKey: key.join String.fromCharCode(0)
+                                    firstLeaf: null
                                     leaves: 0
                                     parent: if col isnt 0 then acc else null
                                     th: createElement "th", className, curVal
                                     childrenSpan: 0
                                 acc.children.push curVal
-                            if col > 0 
+                            if col > 0
                                 acc.descendants++
                             col++
                             if curIdx == lastIdx
                                 node = headers
                                 for i in [0..lastIdx-1] when lastIdx > 0
                                     node[k0[i]].leaves++
-                                    if not node[k0[i]].firstLeaf 
+                                    if not node[k0[i]].firstLeaf
                                         node[k0[i]].firstLeaf = acc[curVal]
                                     node = node[k0[i]]
                                 return headers
@@ -193,13 +193,13 @@ callWithJQuery ($) ->
                 ah.onClick = expandAxis
             if col == attrs.length-1 or col >= opts.disableFrom or opts.disableExpandCollapse
                 arrow = ""
-            ah.th = createElement "th", "pvtAxisLabel #{hClass}", "#{arrow}#{ah.text}" 
+            ah.th = createElement "th", "pvtAxisLabel #{hClass}", "#{arrow}#{ah.text}"
             if col < attrs.length-1 and col < opts.disableFrom and not opts.disableExpandCollapse
                 ah.th.onclick = (event) ->
                     event = event || window.event
                     ah.onClick axisHeaders, col, attrs, opts
             axisHeaders.ah.push ah
-            return ah 
+            return ah
 
         buildColAxisHeaders = (thead, rowAttrs, colAttrs, opts) ->
             axisHeaders =
@@ -220,7 +220,7 @@ callWithJQuery ($) ->
                 expandAttrHeader: expandRow
                 ah: []
                 tr: createElement "tr"
-            for col in [0..rowAttrs.length-1] 
+            for col in [0..rowAttrs.length-1]
                 ah = buildAxisHeader axisHeaders, col, rowAttrs, opts.rowSubtotalDisplay
                 axisHeaders.tr.appendChild ah.th
             if colAttrs.length != 0
@@ -256,7 +256,7 @@ callWithJQuery ($) ->
                     if not opts.colSubtotalDisplay.disableExpandCollapse
                         h.th.onclick = (event) ->
                             event = event || window.event
-                            h.onClick axisHeaders, h, opts.colSubtotalDisplay 
+                            h.onClick axisHeaders, h, opts.colSubtotalDisplay
                     h.sTh = createElement "th", "pvtColLabelFiller #{classColShow} col#{h.row} colcol#{h.col} #{classColExpanded}"
                     h.sTh.setAttribute "data-colnode", h.node
                     h.sTh.rowSpan = colAttrs.length-h.col
@@ -269,7 +269,7 @@ callWithJQuery ($) ->
             ah.tr.appendChild h.th
             h.tr = ah.tr
             attrHeaders.push h
-            node.counter++ 
+            node.counter++
 
 
         buildRowTotalsHeader = (tr, rowAttrs, colAttrs) ->
@@ -300,7 +300,7 @@ callWithJQuery ($) ->
                 tbody.appendChild h.tr
             else
                 tbody.insertBefore h.tr, firstChild.tr
-            
+
             if h.children.length isnt 0 and h.col < opts.rowSubtotalDisplay.disableFrom
                 ++ah.expandedCount
                 ++ah.expandables
@@ -312,7 +312,7 @@ callWithJQuery ($) ->
                 h.sTh = createElement "th", "pvtRowLabelFiller row#{h.row} rowcol#{h.col} #{classRowExpanded} #{classRowShow}"
                 replaceClass h.sTh, classRowShow, classRowHide if opts.rowSubtotalDisplay.hideOnExpand
                 h.sTh.setAttribute "data-rownode", h.node
-                h.sTh.colSpan = rowAttrs.length-(h.col+1) + if colAttrs.length != 0 then 1 else 0 
+                h.sTh.colSpan = rowAttrs.length-(h.col+1) + if colAttrs.length != 0 then 1 else 0
 
                 if opts.rowSubtotalDisplay.displayOnTop
                     h.tr.appendChild h.sTh
@@ -387,7 +387,7 @@ callWithJQuery ($) ->
             for h in attrHeaders when  h.col is colAttrs.length-1 or (h.children.length isnt 0 and h.col < opts.colSubtotalDisplay.disableFrom)
                 clsNames = "pvtVal pvtTotal colTotal #{classColExpanded} col#{h.row} colcol#{h.col}"
                 if h.children.length isnt 0
-                    clsNames += " pvtColSubtotal" 
+                    clsNames += " pvtColSubtotal"
                     clsNames += if opts.colSubtotalDisplay.hideOnExpand then " #{classColHide}" else " #{classColShow}"
                 else
                     clsNames += " #{classColShow}"
@@ -431,21 +431,21 @@ callWithJQuery ($) ->
 
         hideChildCol = (ch) ->
             $(ch.th).closest 'table.pvtTable'
-                .find "tbody tr td[data-colnode=\"#{ch.node}\"], th[data-colnode=\"#{ch.node}\"]" 
-                .removeClass classColShow 
+                .find "tbody tr td[data-colnode=\"#{ch.node}\"], th[data-colnode=\"#{ch.node}\"]"
+                .removeClass classColShow
                 .addClass classColHide
 
         collapseHiddenColSubtotal = (h, opts) ->
             $(h.th).closest 'table.pvtTable'
-                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]" 
+                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]"
                 .removeClass classColExpanded
                 .addClass classColCollapsed
             h.th.textContent = " #{arrowCollapsed} #{h.text}" if h.children.length isnt 0
             h.th.colSpan = 1
-            
+
         collapseShowColSubtotal = (h, opts) ->
             $(h.th).closest 'table.pvtTable'
-                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]" 
+                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]"
                 .removeClass classColExpanded
                 .addClass classColCollapsed
                 .removeClass classColHide
@@ -463,7 +463,7 @@ callWithJQuery ($) ->
             if h.col < opts.disableFrom
                 if hasClass h.th, classColHide
                     collapseHiddenColSubtotal h, opts
-                else 
+                else
                     collapseShowColSubtotal h, opts
             p = h.parent
             while p
@@ -476,21 +476,21 @@ callWithJQuery ($) ->
 
         showChildCol = (ch) ->
             $(ch.th).closest 'table.pvtTable'
-                .find "tbody tr td[data-colnode=\"#{ch.node}\"], th[data-colnode=\"#{ch.node}\"]" 
+                .find "tbody tr td[data-colnode=\"#{ch.node}\"], th[data-colnode=\"#{ch.node}\"]"
                 .removeClass classColHide
                 .addClass classColShow
 
         expandHideColSubtotal = (h) ->
             $(h.th).closest 'table.pvtTable'
-                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]" 
-                .removeClass "#{classColCollapsed} #{classColShow}" 
-                .addClass "#{classColExpanded} #{classColHide}" 
+                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]"
+                .removeClass "#{classColCollapsed} #{classColShow}"
+                .addClass "#{classColExpanded} #{classColHide}"
             replaceClass h.th, classColHide, classColShow
             h.th.textContent = " #{arrowExpanded} #{h.text}"
 
         expandShowColSubtotal = (h) ->
             $(h.th).closest 'table.pvtTable'
-                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]" 
+                .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]"
                 .removeClass "#{classColCollapsed} #{classColHide}"
                 .addClass "#{classColExpanded} #{classColShow}"
             h.th.colSpan++
@@ -504,7 +504,7 @@ callWithJQuery ($) ->
             if ch.sTh and ch.clickStatus is clickStatusExpanded and opts.hideOnExpand
                 replaceClass ch.sTh, classColShow, classColHide
             expandChildCol ch[chKey], opts for chKey in ch.children if (ch.clickStatus is clickStatusExpanded or ch.col >= opts.disableFrom)
-            
+
         expandCol = (axisHeaders, h, opts) ->
             if h.clickStatus is clickStatusExpanded
                 adjustAxisHeader axisHeaders, h.col, opts
@@ -599,7 +599,7 @@ callWithJQuery ($) ->
             for chKey in h.children
                 ch = h[chKey]
                 expandChildRow ch, opts
-            if h.children.length isnt 0 
+            if h.children.length isnt 0
                 if opts.hideOnExpand
                     expandHideRowSubtotal h, opts
                 else
@@ -608,7 +608,7 @@ callWithJQuery ($) ->
             h.onClick = collapseRow
             axisHeaders.ah[h.col].expandedCount++
             adjustAxisHeader axisHeaders, h.col, opts
-    
+
         collapseAxis = (axisHeaders, col, attrs, opts) ->
             collapsible = Math.min attrs.length-2, opts.disableFrom-1
             return if col > collapsible
@@ -616,8 +616,8 @@ callWithJQuery ($) ->
 
         expandAxis = (axisHeaders, col, attrs, opts) ->
             ah = axisHeaders.ah[col]
-            axisHeaders.expandAttrHeader axisHeaders, h, opts for h in axisHeaders.ah[i].attrHeaders for i in [0..col] 
-            # when h.clickStatus is clickStatusCollapsed and h.children.length isnt 0 for i in [0..col] 
+            axisHeaders.expandAttrHeader axisHeaders, h, opts for h in axisHeaders.ah[i].attrHeaders for i in [0..col]
+            # when h.clickStatus is clickStatusCollapsed and h.children.length isnt 0 for i in [0..col]
 
         main = (rowAttrs, rowKeys, colAttrs, colKeys) ->
             rowAttrHeaders = []
@@ -668,11 +668,11 @@ callWithJQuery ($) ->
         "Table With Subtotal Row Heatmap":   (pvtData, opts) -> $(SubtotalRenderer pvtData, opts).heatmap "rowheatmap", opts
         "Table With Subtotal Col Heatmap":  (pvtData, opts) -> $(SubtotalRenderer pvtData, opts).heatmap "colheatmap", opts
 
-    # 
+    #
     # Aggregators
     #
     usFmtPct = $.pivotUtilities.numberFormat digitsAfterDecimal:1, scaler: 100, suffix: "%"
-    aggregatorTemplates = $.pivotUtilities.aggregatorTemplates;
+    aggregatorTemplates = $.pivotUtilities.aggregatorTemplates
 
     subtotalAggregatorTemplates =
         fractionOf: (wrapped, type="row", formatter=usFmtPct) -> (x...) -> (data, rowKey, colKey) ->
