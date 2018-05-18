@@ -12,6 +12,10 @@ callWithJQuery ($) ->
     class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData
         constructor: (input, opts) ->
             super input, opts
+            @aggregatorNames = opts.aggregatorNames ? ['Count']
+            @aggregators = opts.aggregators ? [$.pivotUtilities.aggregatorTemplates.count()({})]
+            if @aggregatorNames.length != @aggregators.length
+                throw new Error('aggregators and aggregatorNames must be the same length')
 
         processKey = (record, totals, keys, attrs, getAggregator) ->
             key = []
@@ -86,6 +90,9 @@ callWithJQuery ($) ->
         rowTotals = pivotData.rowTotals
         colTotals = pivotData.colTotals
         allTotal = pivotData.allTotal
+
+        aggregators = pivotData.aggregators
+        aggregatorNames = pivotData.aggregatorNames
 
         classRowHide = "rowhide"
         classRowShow = "rowshow"
@@ -273,9 +280,11 @@ callWithJQuery ($) ->
 
 
         buildRowTotalsHeader = (tr, rowAttrs, colAttrs) ->
-            th = createElement "th", "pvtTotalLabel rowTotal", opts.localeStrings.totals,
-                rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
-            tr.appendChild th
+            for name in aggregatorNames
+                th = createElement "th", "pvtTotalLabel rowTotal", name,
+                    rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
+                tr.appendChild th
+            return
 
         buildRowHeader = (tbody, axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
             # DF Recurse
