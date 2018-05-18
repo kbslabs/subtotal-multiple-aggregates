@@ -11,11 +11,19 @@ callWithJQuery ($) ->
 
     class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData
         constructor: (input, opts) ->
-            super input, opts
-            @aggregatorNames = opts.aggregatorNames ? ['Count']
-            @aggregators = opts.aggregators ? [$.pivotUtilities.aggregatorTemplates.count()({})]
-            if @aggregatorNames.length != @aggregators.length
+            # Multiple aggregator hack: Let clients pass in aggregators
+            # (plural) and use the first one as the main value for each cell.
+            opts.aggregatorNames ?= ['Count']
+            opts.aggregators ?= [$.pivotUtilities.aggregatorTemplates.count()({})]
+            opts.aggregator = opts.aggregators[0]
+            opts.aggregatorName = opts.aggregatorNames[0]
+            if opts.aggregatorNames.length != opts.aggregators.length
                 throw new Error('aggregators and aggregatorNames must be the same length')
+
+            super input, opts
+
+            @aggregatorNames = opts.aggregatorNames
+            @aggregators = opts.aggregators
 
         processKey = (record, totals, keys, attrs, getAggregator) ->
             key = []
