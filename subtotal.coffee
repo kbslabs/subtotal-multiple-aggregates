@@ -9,7 +9,7 @@ callWithJQuery = (pivotModule) ->
 
 callWithJQuery ($) ->
 
-    class SubtotalPivotData extends $.pivotUtilities.PivotData
+    class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData
         constructor: (input, opts) ->
             super input, opts
 
@@ -48,7 +48,7 @@ callWithJQuery ($) ->
                     @tree[flatRowKey][flatColKey] = @aggregator this, fRowKey, fColKey if not @tree[flatRowKey][flatColKey]
                     @tree[flatRowKey][flatColKey].push record
 
-    $.pivotUtilities.SubtotalPivotData = SubtotalPivotData
+    $.pivotUtilities.SubtotalPivotDataMulti = SubtotalPivotDataMulti
 
     SubtotalRenderer = (pivotData, opts) ->
         defaults =
