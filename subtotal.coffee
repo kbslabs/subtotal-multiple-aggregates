@@ -11,19 +11,23 @@ callWithJQuery ($) ->
 
     class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData
         constructor: (input, opts) ->
-            # Multiple aggregator hack: Let clients pass in aggregators
-            # (plural) and use the first one as the main value for each cell.
-            opts.aggregatorNames ?= ['Count']
-            opts.aggregators ?= [$.pivotUtilities.aggregatorTemplates.count()({})]
-            opts.aggregator = opts.aggregators[0]
-            opts.aggregatorName = opts.aggregatorNames[0]
-            if opts.aggregatorNames.length != opts.aggregators.length
-                throw new Error('aggregators and aggregatorNames must be the same length')
-
             super input, opts
 
-            @aggregatorNames = opts.aggregatorNames
-            @aggregators = opts.aggregators
+            # Multiple aggregator hack: Let clients pass in aggregators
+            # (plural) and use the first one as the main value for each cell.
+            @aggregatorNames = opts.aggregatorNames ? ['Count']
+            @aggregators = opts.aggregators ? [$.pivotUtilities.aggregatorTemplates.count()({})]
+            @aggregatorName = @aggregatorNames[0]
+            @aggregator = @aggregators[0]
+            if @aggregatorNames.length != @aggregators.length
+                throw new Error('aggregators and aggregatorNames must be the same length')
+
+            @allTotal = {}
+            for name, i in @aggregatorNames
+                @allTotal[name] = @aggregators[i](this, [], [])
+
+            SubtotalPivotDataMulti.forEachRecord @input, @derivedAttributes, (record) =>
+                @processRecord(record) if @filter(record)
 
         processKey = (record, totals, keys, attrs, getAggregator) ->
             key = []
@@ -39,14 +43,40 @@ callWithJQuery ($) ->
             return key
 
         processRecord: (record) -> #this code is called in a tight loop
-            rowKey = []
-            colKey = []
 
-            @allTotal.push record
-            rowKey = processKey record, @rowTotals, @rowKeys, @rowAttrs, (key) =>
-                return @aggregator this, key, []
-            colKey = processKey record, @colTotals, @colKeys, @colAttrs, (key) =>
-                return @aggregator this, [], key
+            # Since this gets called in the PivotData (superclass) constructor
+            # but we haven't yet initialized @aggregators, don't do anything.
+            if not @aggregators then return
+
+            for name in @aggregatorNames
+                @allTotal[name].push record
+
+            rowKey = []
+            addKey = false
+            for attr in @rowAttrs
+                rowKey.push record[attr] ? "null"
+                flatKey = rowKey.join String.fromCharCode(0)
+                if not @rowTotals[flatKey]
+                    @rowTotals[flatKey] = @aggregator this, rowKey.slice(), []
+                    addKey = true
+                @rowTotals[flatKey].push record
+            @rowKeys.push rowKey if addKey
+
+            colKey = []
+            addKey = false
+            for attr in @colAttrs
+                colKey.push record[attr] ? "null"
+                flatKey = colKey.join String.fromCharCode(0)
+                if not @colTotals[flatKey]
+                    @colTotals[flatKey] = {}
+                    for name, nameIndex in @aggregatorNames
+                        aggregator = @aggregators[nameIndex]
+                        @colTotals[flatKey][name] = aggregator this, [], colKey.slice()
+                        addKey = true
+                for name in @aggregatorNames
+                    @colTotals[flatKey][name].push record
+            @colKeys.push colKey if addKey
+
             m = rowKey.length-1
             n = colKey.length-1
             return if m < 0 or n < 0
@@ -408,7 +438,8 @@ callWithJQuery ($) ->
                     clsNames += if opts.colSubtotalDisplay.hideOnExpand then " #{classColHide}" else " #{classColShow}"
                 else
                     clsNames += " #{classColShow}"
-                totalAggregator = colTotals[h.flatKey]
+
+                totalAggregator = colTotals[h.flatKey][aggregatorNames[0]]
                 val = totalAggregator.value()
                 td = createElement "td", clsNames, totalAggregator.format(val),
                     "data-value": val
@@ -416,14 +447,16 @@ callWithJQuery ($) ->
                     "data-colnode": "#{h.node}",
                     getTableEventHandlers val, [], h.key, rowAttrs, colAttrs, opts
                 tr.appendChild td
+            return
 
         buildGrandTotal = (tbody, tr, rowAttrs, colAttrs, opts) ->
-            totalAggregator = allTotal
-            val = totalAggregator.value()
-            td = createElement "td", "pvtGrandTotal", totalAggregator.format(val),
-                {"data-value": val},
-                getTableEventHandlers val, [], [], rowAttrs, colAttrs, opts
-            tr.appendChild td
+            for name in aggregatorNames
+                totalAggregator = allTotal[name]
+                val = totalAggregator.value()
+                td = createElement "td", "pvtGrandTotal", totalAggregator.format(val),
+                    {"data-value": val},
+                    getTableEventHandlers val, [], [], rowAttrs, colAttrs, opts
+                tr.appendChild td
             tbody.appendChild tr
 
         collapseAxisHeaders = (axisHeaders, col, opts) ->
