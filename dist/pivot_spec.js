@@ -350,7 +350,8 @@
           {
             a: 1,
             b: 2
-          }, {
+          },
+          {
             a: 3,
             b: 4
           }
@@ -426,16 +427,31 @@
           var agg, i, len, results, s, spots, val;
           spots = [
             {
-              spot: [['Carol', 'yellow'], [102, 14]],
+              spot: [['Carol',
+            'yellow'],
+            [102,
+            14]],
               val: 1
-            }, {
-              spot: [['Jane', 'red'], [95, 25]],
+            },
+            {
+              spot: [['Jane',
+            'red'],
+            [95,
+            25]],
               val: 1
-            }, {
-              spot: [['John', 'blue'], [112, 30]],
+            },
+            {
+              spot: [['John',
+            'blue'],
+            [112,
+            30]],
               val: 1
-            }, {
-              spot: [['Nick', 'blue'], [103, 12]],
+            },
+            {
+              spot: [['Nick',
+            'blue'],
+            [103,
+            12]],
               val: 1
             }
           ];
@@ -453,16 +469,23 @@
           var agg, i, len, results, s, spots, val;
           spots = [
             {
-              spot: [['Carol'], [102]],
+              spot: [['Carol'],
+            [102]],
               val: 1
-            }, {
-              spot: [['Jane'], [95]],
+            },
+            {
+              spot: [['Jane'],
+            [95]],
               val: 1
-            }, {
-              spot: [['John'], [112]],
+            },
+            {
+              spot: [['John'],
+            [112]],
               val: 1
-            }, {
-              spot: [['Nick'], [103]],
+            },
+            {
+              spot: [['Nick'],
+            [103]],
               val: 1
             }
           ];

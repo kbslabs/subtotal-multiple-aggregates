@@ -57,9 +57,13 @@ callWithJQuery ($) ->
                 rowKey.push record[attr] ? "null"
                 flatKey = rowKey.join String.fromCharCode(0)
                 if not @rowTotals[flatKey]
-                    @rowTotals[flatKey] = @aggregator this, rowKey.slice(), []
-                    addKey = true
-                @rowTotals[flatKey].push record
+                    @rowTotals[flatKey] = {}
+                    for name, nameIndex in @aggregatorNames
+                        aggregator = @aggregators[nameIndex]
+                        @rowTotals[flatKey][name] = aggregator this, rowKey.slice(), []
+                        addKey = true
+                for name in @aggregatorNames
+                    @rowTotals[flatKey][name].push record
             @rowKeys.push rowKey if addKey
 
             colKey = []
@@ -413,15 +417,16 @@ callWithJQuery ($) ->
                     tr.appendChild td
 
                 # buildRowTotal
-                totalAggregator = rowTotals[rh.flatKey]
-                val = totalAggregator.value()
-                td = createElement "td", "pvtTotal rowTotal #{rCls}", totalAggregator.format(val),
-                    "data-value": val
-                    "data-row": "row#{rh.row}"
-                    "data-rowcol": "col#{rh.col}"
-                    "data-rownode": rh.node,
-                getTableEventHandlers val, rh.key, [], rowAttrs, colAttrs, opts
-                tr.appendChild td
+                for name in aggregatorNames
+                    totalAggregator = rowTotals[rh.flatKey][name]
+                    val = totalAggregator.value()
+                    td = createElement "td", "pvtTotal rowTotal #{rCls}", totalAggregator.format(val),
+                        "data-value": val
+                        "data-row": "row#{rh.row}"
+                        "data-rowcol": "col#{rh.col}"
+                        "data-rownode": rh.node,
+                    getTableEventHandlers val, rh.key, [], rowAttrs, colAttrs, opts
+                    tr.appendChild td
 
         buildColTotalsHeader = (rowAttrs, colAttrs) ->
             tr = createElement "tr"
