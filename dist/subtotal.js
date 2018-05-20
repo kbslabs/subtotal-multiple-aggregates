@@ -24,8 +24,17 @@
           super(input, opts);
           // Multiple aggregator hack: Let clients pass in aggregators
           // (plural) and use the first one as the main value for each cell.
-          this.aggregatorNames = (ref = opts.aggregatorNames) != null ? ref : ['Count'];
-          this.aggregators = (ref1 = opts.aggregators) != null ? ref1 : [$.pivotUtilities.aggregatorTemplates.count()({})];
+          this.aggregatorNames = (ref = opts.aggregatorNames) != null ? ref : ['Integer Sum', 'Maximum'];
+          this.aggregators = (ref1 = opts.aggregators) != null ? ref1 : (function() {
+            var k, len, ref2, results;
+            ref2 = this.aggregatorNames;
+            results = [];
+            for (k = 0, len = ref2.length; k < len; k++) {
+              name = ref2[k];
+              results.push($.pivotUtilities.aggregators[name]({}));
+            }
+            return results;
+          }).call(this);
           this.aggregatorName = this.aggregatorNames[0];
           this.aggregator = this.aggregators[0];
           if (this.aggregatorNames.length !== this.aggregators.length) {
@@ -455,12 +464,8 @@
         h.onClick = collapseCol;
         addClass(h.th, `${classColShow} col${h.row} colcol${h.col} ${classColExpanded}`);
         h.th.setAttribute("data-colnode", h.node);
-        if (h.children.length !== 0) {
-          h.th.colSpan = h.childrenSpan;
-        }
-        if (h.children.length === 0 && rowAttrs.length !== 0) {
-          h.th.rowSpan = 2;
-        }
+        h.th.colSpan = h.children.length ? h.childrenSpan : aggregatorNames.length;
+        //h.th.rowSpan = 2 if h.children.length is 0 and rowAttrs.length isnt 0
         h.th.textContent = getHeaderText(h, colAttrs, opts.colSubtotalDisplay);
         if (h.children.length !== 0 && h.col < opts.colSubtotalDisplay.disableFrom) {
           ah.expandables++;
@@ -491,14 +496,24 @@
         attrHeaders.push(h);
         return node.counter++;
       };
-      buildRowTotalsHeader = function(tr, rowAttrs, colAttrs) {
-        var k, len, name, th;
-        for (k = 0, len = aggregatorNames.length; k < len; k++) {
-          name = aggregatorNames[k];
-          th = createElement("th", "pvtTotalLabel rowTotal", name, {
-            rowspan: colAttrs.length === 0 ? 1 : colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)
-          });
-          tr.appendChild(th);
+      buildRowTotalsHeader = function(tr, colKeyHeaders, rowAttrs, colAttrs) {
+        var i, k, l, len, len1, name, o, ref, th;
+        if (colAttrs.length > 0 && colKeyHeaders) {
+          for (i = k = 0, ref = colKeyHeaders.children.length; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
+            for (l = 0, len = aggregatorNames.length; l < len; l++) {
+              name = aggregatorNames[l];
+              th = createElement("th", "rowTotal", name);
+              tr.appendChild(th);
+            }
+          }
+        } else {
+          for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
+            name = aggregatorNames[o];
+            th = createElement("th", "pvtTotalLabel rowTotal", name, {
+              rowspan: colAttrs.length === 0 ? 1 : colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)
+            });
+            tr.appendChild(th);
+          }
         }
       };
       buildRowHeader = function(tbody, axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) {
@@ -1089,15 +1104,13 @@
             chKey = ref[k];
             buildColHeader(colAxisHeaders, colAttrHeaders, colKeyHeaders[chKey], rowAttrs, colAttrs, node, opts);
           }
-          buildRowTotalsHeader(colAxisHeaders.ah[0].tr, rowAttrs, colAttrs);
+          buildRowTotalsHeader(colAxisHeaders.ah[0].tr, null, rowAttrs, colAttrs);
         }
         tbody = createElement("tbody");
         result.appendChild(tbody);
         if (rowAttrs.length !== 0) {
           rowAxisHeaders = buildRowAxisHeaders(thead, rowAttrs, colAttrs, opts);
-          if (colAttrs.length === 0) {
-            buildRowTotalsHeader(rowAxisHeaders.tr, rowAttrs, colAttrs);
-          }
+          buildRowTotalsHeader(rowAxisHeaders.tr, colKeyHeaders, rowAttrs, colAttrs);
           node = {
             counter: 0
           };

@@ -15,8 +15,8 @@ callWithJQuery ($) ->
 
             # Multiple aggregator hack: Let clients pass in aggregators
             # (plural) and use the first one as the main value for each cell.
-            @aggregatorNames = opts.aggregatorNames ? ['Count']
-            @aggregators = opts.aggregators ? [$.pivotUtilities.aggregatorTemplates.count()({})]
+            @aggregatorNames = opts.aggregatorNames ? ['Integer Sum', 'Maximum']
+            @aggregators = opts.aggregators ? ($.pivotUtilities.aggregators[name]({}) for name in @aggregatorNames)
             @aggregatorName = @aggregatorNames[0]
             @aggregator = @aggregators[0]
             if @aggregatorNames.length != @aggregators.length
@@ -295,8 +295,8 @@ callWithJQuery ($) ->
 
             addClass h.th, "#{classColShow} col#{h.row} colcol#{h.col} #{classColExpanded}"
             h.th.setAttribute "data-colnode", h.node
-            h.th.colSpan = h.childrenSpan if h.children.length isnt 0
-            h.th.rowSpan = 2 if h.children.length is 0 and rowAttrs.length isnt 0
+            h.th.colSpan = if h.children.length then h.childrenSpan else aggregatorNames.length
+            #h.th.rowSpan = 2 if h.children.length is 0 and rowAttrs.length isnt 0
             h.th.textContent = getHeaderText h, colAttrs, opts.colSubtotalDisplay
             if h.children.length isnt 0 and h.col < opts.colSubtotalDisplay.disableFrom
                     ah.expandables++
@@ -320,12 +320,17 @@ callWithJQuery ($) ->
             attrHeaders.push h
             node.counter++
 
-
-        buildRowTotalsHeader = (tr, rowAttrs, colAttrs) ->
-            for name in aggregatorNames
-                th = createElement "th", "pvtTotalLabel rowTotal", name,
-                    rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
-                tr.appendChild th
+        buildRowTotalsHeader = (tr, colKeyHeaders, rowAttrs, colAttrs) ->
+            if colAttrs.length > 0 and colKeyHeaders
+                for i in [0...colKeyHeaders.children.length]
+                    for name in aggregatorNames
+                        th = createElement "th", "rowTotal", name
+                        tr.appendChild th
+            else
+                for name in aggregatorNames
+                    th = createElement "th", "pvtTotalLabel rowTotal", name,
+                        rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
+                    tr.appendChild th
             return
 
         buildRowHeader = (tbody, axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
@@ -690,13 +695,13 @@ callWithJQuery ($) ->
                 colAxisHeaders = buildColAxisHeaders thead, rowAttrs, colAttrs, opts
                 node = counter: 0
                 buildColHeader colAxisHeaders, colAttrHeaders, colKeyHeaders[chKey], rowAttrs, colAttrs, node, opts for chKey in colKeyHeaders.children
-                buildRowTotalsHeader colAxisHeaders.ah[0].tr, rowAttrs, colAttrs
+                buildRowTotalsHeader colAxisHeaders.ah[0].tr, null, rowAttrs, colAttrs
 
             tbody = createElement "tbody"
             result.appendChild tbody
             if rowAttrs.length isnt 0
                 rowAxisHeaders = buildRowAxisHeaders thead, rowAttrs, colAttrs, opts
-                buildRowTotalsHeader rowAxisHeaders.tr, rowAttrs, colAttrs if colAttrs.length is 0
+                buildRowTotalsHeader rowAxisHeaders.tr, colKeyHeaders, rowAttrs, colAttrs
                 node = counter: 0
                 buildRowHeader tbody, rowAxisHeaders, rowAttrHeaders, rowKeyHeaders[chKey], rowAttrs, colAttrs, node, opts for chKey in rowKeyHeaders.children
 
