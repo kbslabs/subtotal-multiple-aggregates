@@ -15,7 +15,7 @@ callWithJQuery ($) ->
 
             # Multiple aggregator hack: Let clients pass in aggregators
             # (plural) and use the first one as the main value for each cell.
-            @aggregatorNames = opts.aggregatorNames ? ['Integer Sum', 'Maximum']
+            @aggregatorNames = opts.aggregatorNames ? ['Count']
             @aggregators = opts.aggregators ? ($.pivotUtilities.aggregators[name]({}) for name in @aggregatorNames)
             @aggregatorName = @aggregatorNames[0]
             @aggregator = @aggregators[0]
@@ -58,8 +58,8 @@ callWithJQuery ($) ->
                 flatKey = rowKey.join String.fromCharCode(0)
                 if not @rowTotals[flatKey]
                     @rowTotals[flatKey] = {}
-                    for name, nameIndex in @aggregatorNames
-                        aggregator = @aggregators[nameIndex]
+                    for name, i in @aggregatorNames
+                        aggregator = @aggregators[i]
                         @rowTotals[flatKey][name] = aggregator this, rowKey.slice(), []
                         addKey = true
                 for name in @aggregatorNames
@@ -73,8 +73,8 @@ callWithJQuery ($) ->
                 flatKey = colKey.join String.fromCharCode(0)
                 if not @colTotals[flatKey]
                     @colTotals[flatKey] = {}
-                    for name, nameIndex in @aggregatorNames
-                        aggregator = @aggregators[nameIndex]
+                    for name, i in @aggregatorNames
+                        aggregator = @aggregators[i]
                         @colTotals[flatKey][name] = aggregator this, [], colKey.slice()
                         addKey = true
                 for name in @aggregatorNames
@@ -87,12 +87,17 @@ callWithJQuery ($) ->
             for i in [0..m]
                 fRowKey = rowKey.slice(0, i+1)
                 flatRowKey = fRowKey.join String.fromCharCode(0)
-                @tree[flatRowKey] = {} if not @tree[flatRowKey]
+                @tree[flatRowKey] ?= {}
                 for j in [0..n]
                     fColKey = colKey.slice 0, j+1
                     flatColKey = fColKey.join String.fromCharCode(0)
-                    @tree[flatRowKey][flatColKey] = @aggregator this, fRowKey, fColKey if not @tree[flatRowKey][flatColKey]
-                    @tree[flatRowKey][flatColKey].push record
+                    @tree[flatRowKey][flatColKey] ?= {}
+                    for name, k in @aggregatorNames
+                        aggregator = @aggregators[k]
+                        @tree[flatRowKey][flatColKey][name] = aggregator this, fRowKey, fColKey if not @tree[flatRowKey][flatColKey][name]
+                        @tree[flatRowKey][flatColKey][name].push record
+
+            return
 
     $.pivotUtilities.SubtotalPivotDataMulti = SubtotalPivotDataMulti
 
@@ -405,21 +410,22 @@ callWithJQuery ($) ->
                     rCls += " #{classRowShow}"
                 tr = if rh.sTr then rh.sTr else rh.tr
                 for ch in colAttrHeaders when ch.col is colAttrs.length-1 or (ch.children.length isnt 0 and ch.col < opts.colSubtotalDisplay.disableFrom)
-                    aggregator = tree[rh.flatKey][ch.flatKey] ? {value: (-> null), format: -> ""}
-                    val = aggregator.value()
-                    cls = " #{rCls} col#{ch.row} colcol#{ch.col} #{classColExpanded}"
-                    if ch.children.length > 0
-                        cls += " pvtColSubtotal"
-                        cls += if opts.colSubtotalDisplay.hideOnExpand then " #{classColHide}" else " #{classColShow}"
-                    else
-                        cls += " #{classColShow}"
-                    td = createElement "td", cls, aggregator.format(val),
-                        "data-value": val
-                        "data-rownode": rh.node
-                        "data-colnode": ch.node,
-                        getTableEventHandlers val, rh.key, ch.key, rowAttrs, colAttrs, opts
+                    for name in aggregatorNames
+                        aggregator = tree[rh.flatKey][ch.flatKey][name] ? {value: (-> null), format: -> ""}
+                        val = aggregator.value()
+                        cls = " #{rCls} col#{ch.row} colcol#{ch.col} #{classColExpanded}"
+                        if ch.children.length > 0
+                            cls += " pvtColSubtotal"
+                            cls += if opts.colSubtotalDisplay.hideOnExpand then " #{classColHide}" else " #{classColShow}"
+                        else
+                            cls += " #{classColShow}"
+                        td = createElement "td", cls, aggregator.format(val),
+                            "data-value": val
+                            "data-rownode": rh.node
+                            "data-colnode": ch.node,
+                            getTableEventHandlers val, rh.key, ch.key, rowAttrs, colAttrs, opts
 
-                    tr.appendChild td
+                        tr.appendChild td
 
                 # buildRowTotal
                 for name in aggregatorNames
