@@ -455,14 +455,15 @@ callWithJQuery ($) ->
                 else
                     clsNames += " #{classColShow}"
 
-                totalAggregator = colTotals[h.flatKey][aggregatorNames[0]]
-                val = totalAggregator.value()
-                td = createElement "td", clsNames, totalAggregator.format(val),
-                    "data-value": val
-                    "data-for": "col#{h.col}"
-                    "data-colnode": "#{h.node}",
-                    getTableEventHandlers val, [], h.key, rowAttrs, colAttrs, opts
-                tr.appendChild td
+                for name, i in aggregatorNames
+                    totalAggregator = colTotals[h.flatKey][aggregatorNames[i]]
+                    val = totalAggregator.value()
+                    td = createElement "td", clsNames, totalAggregator.format(val),
+                        "data-value": val
+                        "data-for": "col#{h.col}"
+                        "data-colnode": "#{h.node}",
+                        getTableEventHandlers val, [], h.key, rowAttrs, colAttrs, opts
+                    tr.appendChild td
             return
 
         buildGrandTotal = (tbody, tr, rowAttrs, colAttrs, opts) ->
