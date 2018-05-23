@@ -13,6 +13,9 @@ callWithJQuery ($) ->
         constructor: (input, opts) ->
             super input, opts
 
+            @hasColTotals = opts.hasColTotals ? true
+            @hasRowTotals = opts.hasRowTotals ? true
+
             # Multiple aggregator hack: Let clients pass in aggregators
             # (plural) and use the first one as the main value for each cell.
             @aggregatorNames = opts.aggregatorNames ? ['Count']
@@ -140,6 +143,9 @@ callWithJQuery ($) ->
 
         aggregators = pivotData.aggregators
         aggregatorNames = pivotData.aggregatorNames
+
+        hasColTotals = pivotData.hasColTotals
+        hasRowTotals = pivotData.hasRowTotals
 
         classRowHide = "rowhide"
         classRowShow = "rowshow"
@@ -428,16 +434,18 @@ callWithJQuery ($) ->
                         tr.appendChild td
 
                 # buildRowTotal
-                for name in aggregatorNames
-                    totalAggregator = rowTotals[rh.flatKey][name]
-                    val = totalAggregator.value()
-                    td = createElement "td", "pvtTotal rowTotal #{rCls}", totalAggregator.format(val),
-                        "data-value": val
-                        "data-row": "row#{rh.row}"
-                        "data-rowcol": "col#{rh.col}"
-                        "data-rownode": rh.node,
-                    getTableEventHandlers val, rh.key, [], rowAttrs, colAttrs, opts
-                    tr.appendChild td
+                if hasRowTotals
+                    for name in aggregatorNames
+                        totalAggregator = rowTotals[rh.flatKey][name]
+                        val = totalAggregator.value()
+                        td = createElement "td", "pvtTotal rowTotal #{rCls}", totalAggregator.format(val),
+                            "data-value": val
+                            "data-row": "row#{rh.row}"
+                            "data-rowcol": "col#{rh.col}"
+                            "data-rownode": rh.node,
+                        getTableEventHandlers val, rh.key, [], rowAttrs, colAttrs, opts
+                        tr.appendChild td
+            return
 
         buildColTotalsHeader = (rowAttrs, colAttrs) ->
             tr = createElement "tr"
@@ -474,7 +482,6 @@ callWithJQuery ($) ->
                     {"data-value": val},
                     getTableEventHandlers val, [], [], rowAttrs, colAttrs, opts
                 tr.appendChild td
-            tbody.appendChild tr
 
         collapseAxisHeaders = (axisHeaders, col, opts) ->
             collapsible = Math.min axisHeaders.ah.length-2, opts.disableFrom-1
@@ -702,7 +709,8 @@ callWithJQuery ($) ->
                 colAxisHeaders = buildColAxisHeaders thead, rowAttrs, colAttrs, opts
                 node = counter: 0
                 buildColHeader colAxisHeaders, colAttrHeaders, colKeyHeaders[chKey], rowAttrs, colAttrs, node, opts for chKey in colKeyHeaders.children
-                buildRowTotalsHeader colAxisHeaders.ah[0].tr, null, rowAttrs, colAttrs
+                if hasRowTotals
+                    buildRowTotalsHeader colAxisHeaders.ah[0].tr, null, rowAttrs, colAttrs
 
             tbody = createElement "tbody"
             result.appendChild tbody
@@ -713,9 +721,13 @@ callWithJQuery ($) ->
                 buildRowHeader tbody, rowAxisHeaders, rowAttrHeaders, rowKeyHeaders[chKey], rowAttrs, colAttrs, node, opts for chKey in rowKeyHeaders.children
 
             buildValues tbody, colAttrHeaders, rowAttrHeaders, rowAttrs, colAttrs, opts
-            tr = buildColTotalsHeader rowAttrs, colAttrs
-            buildColTotals tr, colAttrHeaders, rowAttrs, colAttrs, opts if colAttrs.length > 0
-            buildGrandTotal tbody, tr, rowAttrs, colAttrs, opts
+
+            if hasColTotals
+                tr = buildColTotalsHeader rowAttrs, colAttrs
+                buildColTotals tr, colAttrHeaders, rowAttrs, colAttrs, opts if colAttrs.length > 0
+                if hasRowTotals
+                    buildGrandTotal tbody, tr, rowAttrs, colAttrs, opts
+                tbody.appendChild tr
 
             collapseAxis colAxisHeaders, opts.colSubtotalDisplay.collapseAt, colAttrs, opts.colSubtotalDisplay
             collapseAxis rowAxisHeaders, opts.rowSubtotalDisplay.collapseAt, rowAttrs, opts.rowSubtotalDisplay
