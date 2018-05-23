@@ -513,10 +513,12 @@
               tr.appendChild(th);
             }
           }
-          for (q = 0, len1 = aggregatorNames.length; q < len1; q++) {
-            name = aggregatorNames[q];
-            th = createElement("th", "rowTotal", name);
-            tr.appendChild(th);
+          if (hasRowTotals) {
+            for (q = 0, len1 = aggregatorNames.length; q < len1; q++) {
+              name = aggregatorNames[q];
+              th = createElement("th", "rowTotal", name);
+              tr.appendChild(th);
+            }
           }
         } else {
           th = createElement("th", "pvtColLabel", opts.localeStrings.totals, {

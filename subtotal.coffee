@@ -340,9 +340,10 @@ callWithJQuery ($) ->
                     for name in aggregatorNames
                         th = createElement "th", "rowTotal", name
                         tr.appendChild th
-                for name in aggregatorNames
-                    th = createElement "th", "rowTotal", name
-                    tr.appendChild th
+                if hasRowTotals
+                    for name in aggregatorNames
+                        th = createElement "th", "rowTotal", name
+                        tr.appendChild th
             else
                 th = createElement "th", "pvtColLabel", opts.localeStrings.totals,
                     colspan: aggregatorNames.length
