@@ -9,9 +9,12 @@ callWithJQuery = (pivotModule) ->
 
 callWithJQuery ($) ->
 
+    LOOKER_ROW_TOTAL_KEY = '$$$_row_total_$$$'
+
     class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData
         constructor: (input, opts) ->
             super input, opts
+            window.p = this # XXX
 
             @hasColTotals = opts.hasColTotals ? true
             @hasRowTotals = opts.hasRowTotals ? true
@@ -337,11 +340,18 @@ callWithJQuery ($) ->
                     for name in aggregatorNames
                         th = createElement "th", "rowTotal", name
                         tr.appendChild th
-            else
                 for name in aggregatorNames
-                    th = createElement "th", "pvtTotalLabel rowTotal", name,
-                        rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
+                    th = createElement "th", "rowTotal", name
                     tr.appendChild th
+            else
+                th = createElement "th", "pvtColLabel", opts.localeStrings.totals,
+                    colspan: aggregatorNames.length
+                tr.appendChild th
+                # for name in aggregatorNames
+                #     th = createElement "th", "pvtTotalLabel rowTotal", name,
+                #         rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
+                #     console.log 'XXX', 'BBB', th
+                #     tr.appendChild th
             return
 
         buildRowHeader = (tbody, axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
