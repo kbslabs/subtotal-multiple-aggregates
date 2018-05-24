@@ -14,10 +14,10 @@ callWithJQuery ($) ->
     class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData
         constructor: (input, opts) ->
             super input, opts
-            window.p = this # XXX
+            window.pivotData = this # XXX
 
             @hasColTotals = opts.hasColTotals ? true
-            @hasRowTotals = opts.hasRowTotals ? true
+            @hasRowTotals = if @colAttrs.length then (opts.hasRowTotals ? true) else true
             @labels = opts.labels ? {}
 
             # Multiple aggregator hack: Let clients pass in aggregators
@@ -345,25 +345,27 @@ callWithJQuery ($) ->
             node.counter++
 
         buildRowTotalsHeader = (tr, colKeyHeaders, rowAttrs, colAttrs) ->
-            if colAttrs.length > 0 and colKeyHeaders
-                for i in [0...colKeyHeaders.children.length]
-                    continue if colKeyHeaders.children[i] is LOOKER_ROW_TOTAL_KEY and not useLookerRowTotals
-                    for name in aggregatorNames
-                        th = createElement "th", "rowTotal", { html: name }
-                        tr.appendChild th
-                if hasRowTotals and not useLookerRowTotals
-                    for name in aggregatorNames
-                        th = createElement "th", "rowTotal", { html: name }
-                        tr.appendChild th
-            else
-                if not useLookerRowTotals
+            if colAttrs.length > 0
+                # We have pivots.
+                if colKeyHeaders
+                    for i in [0...colKeyHeaders.children.length]
+                        continue if colKeyHeaders.children[i] is LOOKER_ROW_TOTAL_KEY and not useLookerRowTotals
+                        for name in aggregatorNames
+                            th = createElement "th", "rowTotal", { html: labels[name] }
+                            tr.appendChild th
+                    if hasRowTotals and not useLookerRowTotals
+                        for name in aggregatorNames
+                            th = createElement "th", "rowTotal", { html: labels[name] }
+                            tr.appendChild th
+                else
                     th = createElement "th", "pvtColLabel", 'Total*', # XXX Asterix
                         colspan: aggregatorNames.length
                     tr.appendChild th
-                # for name in aggregatorNames
-                #     th = createElement "th", "pvtTotalLabel rowTotal", name,
-                #         rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
-                #     tr.appendChild th
+            else
+                # No pivots, but we still need to add column headers.
+                for name in aggregatorNames
+                    th = createElement "th", "rowTotal", { html: labels[name] }
+                    tr.appendChild th
             return
 
         buildRowHeader = (tbody, axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
@@ -722,7 +724,7 @@ callWithJQuery ($) ->
             colKeyHeaders = processKeys colKeys, "pvtColLabel" if colAttrs.length isnt 0 and colKeys.length isnt 0
             rowKeyHeaders = processKeys rowKeys, "pvtRowLabel" if rowAttrs.length isnt 0 and rowKeys.length isnt 0
 
-            if not useLookerRowTotals
+            if colKeyHeaders and not useLookerRowTotals
                 delete colKeyHeaders[LOOKER_ROW_TOTAL_KEY]
                 colKeyHeaders.children = colKeyHeaders.children.filter((k) -> k != LOOKER_ROW_TOTAL_KEY)
 
