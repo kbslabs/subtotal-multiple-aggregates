@@ -18,6 +18,7 @@ callWithJQuery ($) ->
 
             @hasColTotals = opts.hasColTotals ? true
             @hasRowTotals = opts.hasRowTotals ? true
+            @labels = opts.labels ? {}
 
             # Multiple aggregator hack: Let clients pass in aggregators
             # (plural) and use the first one as the main value for each cell.
@@ -152,6 +153,7 @@ callWithJQuery ($) ->
 
         hasColTotals = pivotData.hasColTotals
         hasRowTotals = pivotData.hasRowTotals
+        labels = pivotData.labels
 
         hasLookerRowTotals = pivotData.hasLookerRowTotals
         useLookerRowTotals = pivotData.useLookerRowTotals
@@ -190,10 +192,11 @@ callWithJQuery ($) ->
             addClass element, byClassName
         # Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- End
 
-        createElement = (elementType, className, textContent, attributes, eventHandlers) ->
+        createElement = (elementType, className, content, attributes, eventHandlers) ->
             e = document.createElement elementType
             e.className = className if className?
-            e.textContent = textContent if textContent?
+            e.innerHTML = content.html if content?.html?
+            e.textContent = content if content? and not content?.html?
             e.setAttribute attr, val for own attr, val of attributes if attributes?
             e.addEventListener event, handler for own event, handler of eventHandlers if eventHandlers?
             return e
@@ -246,7 +249,7 @@ callWithJQuery ($) ->
 
         buildAxisHeader = (axisHeaders, col, attrs, opts) ->
             ah =
-                text: attrs[col]
+                text: labels[attrs[col]] ? attrs[col]
                 expandedCount: 0
                 expandables: 0
                 attrHeaders: []
@@ -262,7 +265,7 @@ callWithJQuery ($) ->
                 ah.onClick = expandAxis
             if col == attrs.length-1 or col >= opts.disableFrom or opts.disableExpandCollapse
                 arrow = ""
-            ah.th = createElement "th", "pvtAxisLabel #{hClass}", "#{arrow}#{ah.text}"
+            ah.th = createElement "th", "pvtAxisLabel #{hClass}", { html: "#{arrow}#{ah.text}" }
             if col < attrs.length-1 and col < opts.disableFrom and not opts.disableExpandCollapse
                 ah.th.onclick = (event) ->
                     event = event || window.event
@@ -301,7 +304,8 @@ callWithJQuery ($) ->
         getHeaderText = (h, attrs, opts) ->
             arrow = " #{arrowExpanded} "
             arrow = "" if h.col == attrs.length-1 or h.col >= opts.disableFrom or opts.disableExpandCollapse or h.children.length is 0
-            return "#{arrow}#{h.text}"
+            label = if h.text is LOOKER_ROW_TOTAL_KEY then 'Total' else h.text
+            return "#{arrow}#{label}"
 
         buildColHeader = (axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
             # DF Recurse
@@ -345,15 +349,15 @@ callWithJQuery ($) ->
                 for i in [0...colKeyHeaders.children.length]
                     continue if colKeyHeaders.children[i] is LOOKER_ROW_TOTAL_KEY and not useLookerRowTotals
                     for name in aggregatorNames
-                        th = createElement "th", "rowTotal", name
+                        th = createElement "th", "rowTotal", { html: name }
                         tr.appendChild th
                 if hasRowTotals and not useLookerRowTotals
                     for name in aggregatorNames
-                        th = createElement "th", "rowTotal", name
+                        th = createElement "th", "rowTotal", { html: name }
                         tr.appendChild th
             else
                 if not useLookerRowTotals
-                    th = createElement "th", "pvtColLabel", opts.localeStrings.totals + "*", # XXX Asterix
+                    th = createElement "th", "pvtColLabel", 'Total*', # XXX Asterix
                         colspan: aggregatorNames.length
                     tr.appendChild th
                 # for name in aggregatorNames
