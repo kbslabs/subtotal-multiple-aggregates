@@ -68,31 +68,30 @@
           if (!this.aggregators) {
             return;
           }
-          ref = this.aggregatorNames;
-          for (l = 0, len = ref.length; l < len; l++) {
-            name = ref[l];
-            this.allTotal[name].push(record);
-          }
           rowKey = [];
           addKey = false;
-          ref1 = this.rowAttrs;
-          for (o = 0, len1 = ref1.length; o < len1; o++) {
-            attr = ref1[o];
-            rowKey.push((ref2 = record[attr]) != null ? ref2 : "null");
+          ref = this.rowAttrs;
+          for (l = 0, len = ref.length; l < len; l++) {
+            attr = ref[l];
+            rowKey.push((ref1 = record[attr]) != null ? ref1 : "null");
             flatKey = rowKey.join(String.fromCharCode(0));
             if (!this.rowTotals[flatKey]) {
               this.rowTotals[flatKey] = {};
-              ref3 = this.aggregatorNames;
-              for (i = q = 0, len2 = ref3.length; q < len2; i = ++q) {
-                name = ref3[i];
+              ref2 = this.aggregatorNames;
+              for (i = o = 0, len1 = ref2.length; o < len1; i = ++o) {
+                name = ref2[i];
                 aggregator = this.aggregators[i];
                 this.rowTotals[flatKey][name] = aggregator(this, rowKey.slice(), []);
                 addKey = true;
               }
             }
-            ref4 = this.aggregatorNames;
-            for (r = 0, len3 = ref4.length; r < len3; r++) {
-              name = ref4[r];
+            if (this.colAttrs.length && record[this.colAttrs[0]] === LOOKER_ROW_TOTAL_KEY) {
+              // Don't aggregate alread-aggregated data.
+              continue;
+            }
+            ref3 = this.aggregatorNames;
+            for (q = 0, len2 = ref3.length; q < len2; q++) {
+              name = ref3[q];
               this.rowTotals[flatKey][name].push(record);
             }
           }
@@ -101,29 +100,36 @@
           }
           colKey = [];
           addKey = false;
-          ref5 = this.colAttrs;
-          for (s = 0, len4 = ref5.length; s < len4; s++) {
-            attr = ref5[s];
-            colKey.push((ref6 = record[attr]) != null ? ref6 : "null");
+          ref4 = this.colAttrs;
+          for (r = 0, len3 = ref4.length; r < len3; r++) {
+            attr = ref4[r];
+            colKey.push((ref5 = record[attr]) != null ? ref5 : "null");
             flatKey = colKey.join(String.fromCharCode(0));
             if (!this.colTotals[flatKey]) {
               this.colTotals[flatKey] = {};
-              ref7 = this.aggregatorNames;
-              for (i = t = 0, len5 = ref7.length; t < len5; i = ++t) {
-                name = ref7[i];
+              ref6 = this.aggregatorNames;
+              for (i = s = 0, len4 = ref6.length; s < len4; i = ++s) {
+                name = ref6[i];
                 aggregator = this.aggregators[i];
                 this.colTotals[flatKey][name] = aggregator(this, [], colKey.slice());
                 addKey = true;
               }
             }
-            ref8 = this.aggregatorNames;
-            for (u = 0, len6 = ref8.length; u < len6; u++) {
-              name = ref8[u];
+            ref7 = this.aggregatorNames;
+            for (t = 0, len5 = ref7.length; t < len5; t++) {
+              name = ref7[t];
               this.colTotals[flatKey][name].push(record);
             }
           }
           if (addKey) {
             this.colKeys.push(colKey);
+          }
+          if (colKey[0] !== LOOKER_ROW_TOTAL_KEY) {
+            ref8 = this.aggregatorNames;
+            for (u = 0, len6 = ref8.length; u < len6; u++) {
+              name = ref8[u];
+              this.allTotal[name].push(record);
+            }
           }
           m = rowKey.length - 1;
           n = colKey.length - 1;

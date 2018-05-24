@@ -58,9 +58,6 @@ callWithJQuery ($) ->
             # but we haven't yet initialized @aggregators, don't do anything.
             if not @aggregators then return
 
-            for name in @aggregatorNames
-                @allTotal[name].push record
-
             rowKey = []
             addKey = false
             for attr in @rowAttrs
@@ -72,6 +69,8 @@ callWithJQuery ($) ->
                         aggregator = @aggregators[i]
                         @rowTotals[flatKey][name] = aggregator this, rowKey.slice(), []
                         addKey = true
+                # Don't aggregate alread-aggregated data.
+                continue if @colAttrs.length && record[@colAttrs[0]] is LOOKER_ROW_TOTAL_KEY
                 for name in @aggregatorNames
                     @rowTotals[flatKey][name].push record
             @rowKeys.push rowKey if addKey
@@ -90,6 +89,10 @@ callWithJQuery ($) ->
                 for name in @aggregatorNames
                     @colTotals[flatKey][name].push record
             @colKeys.push colKey if addKey
+
+            if colKey[0] isnt LOOKER_ROW_TOTAL_KEY
+                for name in @aggregatorNames
+                    @allTotal[name].push record
 
             m = rowKey.length-1
             n = colKey.length-1
