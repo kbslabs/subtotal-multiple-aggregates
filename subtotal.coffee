@@ -35,6 +35,9 @@ callWithJQuery ($) ->
             SubtotalPivotDataMulti.forEachRecord @input, @derivedAttributes, (record) =>
                 @processRecord(record) if @filter(record)
 
+            @hasLookerRowTotals = @getColKeys().flatten().includes(LOOKER_ROW_TOTAL_KEY)
+            @useLookerRowTotals = (opts.useLookerRowTotals ? true) and @hasLookerRowTotals
+
         processKey = (record, totals, keys, attrs, getAggregator) ->
             key = []
             addKey = false
@@ -149,6 +152,9 @@ callWithJQuery ($) ->
 
         hasColTotals = pivotData.hasColTotals
         hasRowTotals = pivotData.hasRowTotals
+
+        hasLookerRowTotals = pivotData.hasLookerRowTotals
+        useLookerRowTotals = pivotData.useLookerRowTotals
 
         classRowHide = "rowhide"
         classRowShow = "rowshow"
@@ -337,21 +343,22 @@ callWithJQuery ($) ->
         buildRowTotalsHeader = (tr, colKeyHeaders, rowAttrs, colAttrs) ->
             if colAttrs.length > 0 and colKeyHeaders
                 for i in [0...colKeyHeaders.children.length]
+                    continue if colKeyHeaders.children[i] is LOOKER_ROW_TOTAL_KEY and not useLookerRowTotals
                     for name in aggregatorNames
                         th = createElement "th", "rowTotal", name
                         tr.appendChild th
-                if hasRowTotals
+                if hasRowTotals and not useLookerRowTotals
                     for name in aggregatorNames
                         th = createElement "th", "rowTotal", name
                         tr.appendChild th
             else
-                th = createElement "th", "pvtColLabel", opts.localeStrings.totals,
-                    colspan: aggregatorNames.length
-                tr.appendChild th
+                if not useLookerRowTotals
+                    th = createElement "th", "pvtColLabel", opts.localeStrings.totals + "*", # XXX Asterix
+                        colspan: aggregatorNames.length
+                    tr.appendChild th
                 # for name in aggregatorNames
                 #     th = createElement "th", "pvtTotalLabel rowTotal", name,
                 #         rowspan: if colAttrs.length is 0 then 1 else colAttrs.length + (if rowAttrs.length is 0 then 0 else 1)
-                #     console.log 'XXX', 'BBB', th
                 #     tr.appendChild th
             return
 
@@ -445,7 +452,7 @@ callWithJQuery ($) ->
                         tr.appendChild td
 
                 # buildRowTotal
-                if hasRowTotals
+                if hasRowTotals and not useLookerRowTotals
                     for name in aggregatorNames
                         totalAggregator = rowTotals[rh.flatKey][name]
                         val = totalAggregator.value()
@@ -711,6 +718,10 @@ callWithJQuery ($) ->
             colKeyHeaders = processKeys colKeys, "pvtColLabel" if colAttrs.length isnt 0 and colKeys.length isnt 0
             rowKeyHeaders = processKeys rowKeys, "pvtRowLabel" if rowAttrs.length isnt 0 and rowKeys.length isnt 0
 
+            if not useLookerRowTotals
+                delete colKeyHeaders[LOOKER_ROW_TOTAL_KEY]
+                colKeyHeaders.children = colKeyHeaders.children.filter((k) -> k != LOOKER_ROW_TOTAL_KEY)
+
             result = createElement "table", "pvtTable", null, {style: "display: none;"}
 
             thead = createElement "thead"
@@ -720,7 +731,7 @@ callWithJQuery ($) ->
                 colAxisHeaders = buildColAxisHeaders thead, rowAttrs, colAttrs, opts
                 node = counter: 0
                 buildColHeader colAxisHeaders, colAttrHeaders, colKeyHeaders[chKey], rowAttrs, colAttrs, node, opts for chKey in colKeyHeaders.children
-                if hasRowTotals
+                if hasRowTotals and not useLookerRowTotals
                     buildRowTotalsHeader colAxisHeaders.ah[0].tr, null, rowAttrs, colAttrs
 
             tbody = createElement "tbody"
@@ -736,7 +747,7 @@ callWithJQuery ($) ->
             if hasColTotals
                 tr = buildColTotalsHeader rowAttrs, colAttrs
                 buildColTotals tr, colAttrHeaders, rowAttrs, colAttrs, opts if colAttrs.length > 0
-                if hasRowTotals
+                if hasRowTotals and not useLookerRowTotals
                     buildGrandTotal tbody, tr, rowAttrs, colAttrs, opts
                 tbody.appendChild tr
 
