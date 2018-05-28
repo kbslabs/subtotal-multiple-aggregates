@@ -130,8 +130,8 @@ callWithJQuery ($) ->
                 disableExpandCollapse: false
             colSubtotalDisplay:
                 displayOnTop: true
-                disableFrom: 99999
-                collapseAt: 99999
+                disableFrom: 0
+                collapseAt: 0
                 hideOnExpand: false
                 disableExpandCollapse: false
         opts = $.extend true, {}, defaults, opts
@@ -143,6 +143,9 @@ callWithJQuery ($) ->
         opts.colSubtotalDisplay.disableFrom = 0 if opts.colSubtotalDisplay.disableSubtotal
         opts.colSubtotalDisplay.disableFrom = opts.colSubtotalDisplay.disableAfter+1 if typeof  opts.colSubtotalDisplay.disableAfter isnt 'undefined' and opts.colSubtotalDisplay.disableAfter isnt null
         opts.colSubtotalDisplay.collapseAt = opts.collapseColsAt if typeof opts.colSubtotalDisplay.collapseAt isnt 'undefined' and opts.collapseColsAt isnt null
+
+        if opts.colSubtotalDisplay.disableFrom > 0
+            throw new Error('Column subtotals are unimplemented')
 
         colAttrs = pivotData.colAttrs
         rowAttrs = pivotData.rowAttrs
@@ -339,7 +342,7 @@ callWithJQuery ($) ->
                     h.sTh.setAttribute "data-colnode", h.node
                     h.sTh.rowSpan = colAttrs.length-h.col
                     replaceClass h.sTh, classColShow, classColHide if opts.colSubtotalDisplay.hideOnExpand
-                    h[h.children[0]].tr.appendChild h.sTh
+                    #h[h.children[0]].tr.appendChild h.sTh
 
             h.parent?.childrenSpan += h.th.colSpan
 
@@ -411,11 +414,11 @@ callWithJQuery ($) ->
                 h.sTh.colSpan = rowAttrs.length-(h.col+1) + if colAttrs.length != 0 then 1 else 0
 
                 if opts.rowSubtotalDisplay.displayOnTop
-                    h.tr.appendChild h.sTh
+                    #h.tr.appendChild h.sTh
                 else
                     h.th.rowSpan += 1 # if not opts.rowSubtotalDisplay.hideOnExpand
                     h.sTr = createElement "tr", "row#{h.row}"
-                    h.sTr.appendChild h.sTh
+                    #h.sTr.appendChild h.sTh
                     tbody.appendChild h.sTr
 
             h.th.rowSpan++ if h.children.length isnt 0
