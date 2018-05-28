@@ -1,3 +1,5 @@
+flatten = require('array-flatten')
+
 callWithJQuery = (pivotModule) ->
     if typeof exports is "object" and typeof module is "object" # CommonJS
         module.exports = pivotModule
@@ -36,7 +38,7 @@ callWithJQuery ($) ->
             SubtotalPivotDataMulti.forEachRecord @input, @derivedAttributes, (record) =>
                 @processRecord(record) if @filter(record)
 
-            @hasLookerRowTotals = @getColKeys().flatten().includes(LOOKER_ROW_TOTAL_KEY)
+            @hasLookerRowTotals = flatten(@getColKeys()).includes(LOOKER_ROW_TOTAL_KEY)
             @useLookerRowTotals = (opts.useLookerRowTotals ? true) and @hasLookerRowTotals
 
         processKey = (record, totals, keys, attrs, getAggregator) ->

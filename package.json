@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/nagarajanchinnasamy/subtotal",
   "dependencies": {
+    "array-flatten": "^2.1.1",
     "gulp-minify-css": "^1.2.4",
     "pivottable": ">=2.7.0"
   },
