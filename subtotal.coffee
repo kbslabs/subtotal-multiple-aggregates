@@ -342,7 +342,7 @@ callWithJQuery ($) ->
                     h.sTh.setAttribute "data-colnode", h.node
                     h.sTh.rowSpan = colAttrs.length-h.col
                     replaceClass h.sTh, classColShow, classColHide if opts.colSubtotalDisplay.hideOnExpand
-                    #h[h.children[0]].tr.appendChild h.sTh
+                    h[h.children[0]].tr.appendChild h.sTh
 
             h.parent?.childrenSpan += h.th.colSpan
 
@@ -374,12 +374,14 @@ callWithJQuery ($) ->
                             for name in aggregatorNames
                                 th = createElement "th", "rowTotal", { html: labels[name] }
                                 tr.appendChild th
+
                     if hasRowTotals and not useLookerRowTotals
                         for name in aggregatorNames
                             th = createElement "th", "rowTotal", { html: labels[name] }
                             tr.appendChild th
                 else
                     th = createElement "th", "pvtColLabel", 'Total*', # XXX Asterix
+                        rowspan: colAttrs.length
                         colspan: aggregatorNames.length
                     tr.appendChild th
             else
