@@ -289,7 +289,7 @@ callWithJQuery ($) ->
             for attr, col in colAttrs
                 ah = buildAxisHeader axisHeaders, col, colAttrs, opts.colSubtotalDisplay
                 ah.tr = createElement "tr", "pvtColAxisHeaders"
-                ah.tr.appendChild createElement "th", null, null, {colspan: rowAttrs.length, rowspan: colAttrs.length} if col is 0 and rowAttrs.length isnt 0
+                ah.tr.appendChild createElement "th", "pvtCornerFiller", null, {colspan: rowAttrs.length, rowspan: colAttrs.length} if col is 0 and rowAttrs.length isnt 0
                 ah.tr.appendChild ah.th
                 thead.appendChild ah.tr
             return axisHeaders
@@ -400,6 +400,8 @@ callWithJQuery ($) ->
                     tr.appendChild th
             return
 
+        lastPivotHeader = null
+
         buildRowHeader = (tbody, axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
             # DF Recurse
             buildRowHeader tbody, axisHeaders, attrHeaders, h[chKey], rowAttrs, colAttrs, node, opts for chKey in h.children
@@ -411,7 +413,9 @@ callWithJQuery ($) ->
             h.onClick = collapseRow
             firstChild = h[h.children[0]] if h.children.length isnt 0
 
-            addClass h.th, "#{classRowShow} row#{h.row} rowcol#{h.col} #{classRowExpanded}"
+            removeClass lastPivotHeader, "lastPivot" if lastPivotHeader
+            lastPivotHeader = h.th
+            addClass h.th, "#{classRowShow} pvtRowHeader lastPivot row#{h.row} rowcol#{h.col} #{classRowExpanded}"
             h.th.setAttribute "data-rownode", h.node
             h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
             h.th.rowSpan = h.childrenSpan if h.children.length isnt 0

@@ -109,9 +109,20 @@
     .pvtRowLabelFiller {
         border-bottom: none;
     }
+    .pvtRowLabel {
+        background: $background-color;
+    }
 
-    table.pvtHasColTotals tr:nth-last-child(2) {
-        td, th {
+    table.pvtHasColTotals {
+        tbody th.pvtRowLabel:last-child {
+            border-bottom: 1px solid $border-dark;
+        }
+        tbody tr:nth-last-child(2) {
+            td, th {
+                border-bottom: 1px solid $border-dark;
+            }
+        }
+        tbody th.pvtRowHeader.lastPivot {
             border-bottom: 1px solid $border-dark;
         }
     }
