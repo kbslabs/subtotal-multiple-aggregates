@@ -356,11 +356,24 @@ callWithJQuery ($) ->
             if colAttrs.length > 0
                 # We have pivots.
                 if colKeyHeaders
-                    for i in [0...colKeyHeaders.children.length]
-                        continue if colKeyHeaders.children[i] is LOOKER_ROW_TOTAL_KEY and not useLookerRowTotals
-                        for name in aggregatorNames
-                            th = createElement "th", "rowTotal", { html: labels[name] }
-                            tr.appendChild th
+
+                    addHeaders = (headers) ->
+                        if headers.children.length > 0
+                            for child in headers.children
+                                continue if child is LOOKER_ROW_TOTAL_KEY
+                                addHeaders(headers[child])
+                        else
+                            for name in aggregatorNames
+                                th = createElement "th", "rowTotal", { html: labels[name] }
+                                tr.appendChild th
+                    addHeaders(colKeyHeaders)
+
+                    if useLookerRowTotals
+                        for child in colKeyHeaders.children
+                            continue if child is LOOKER_ROW_TOTAL_KEY
+                            for name in aggregatorNames
+                                th = createElement "th", "rowTotal", { html: labels[name] }
+                                tr.appendChild th
                     if hasRowTotals and not useLookerRowTotals
                         for name in aggregatorNames
                             th = createElement "th", "rowTotal", { html: labels[name] }
