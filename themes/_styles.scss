@@ -97,10 +97,14 @@
     .pvtRowAxisHeaders .pvtAxisLabel {
         background: $measure-darker;
     }
+    .pvtColAxisHeaders .pvtAxisLabel {
+        text-align: right;
+        padding-right: 1em;
+    }
     .rowTotal {
         background: $dimension-darker;
     }
-    .pvtVal {
+    .pvtVal, .pvtGrandTotal {
         text-align: right;
     }
     .pvtColTotal {

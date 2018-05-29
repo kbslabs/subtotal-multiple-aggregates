@@ -288,8 +288,8 @@ callWithJQuery ($) ->
                 ah: []
             for attr, col in colAttrs
                 ah = buildAxisHeader axisHeaders, col, colAttrs, opts.colSubtotalDisplay
+                ah.th.colSpan = colAttrs.length
                 ah.tr = createElement "tr", "pvtColAxisHeaders"
-                ah.tr.appendChild createElement "th", "pvtCornerFiller", null, {colspan: rowAttrs.length, rowspan: colAttrs.length} if col is 0 and rowAttrs.length isnt 0
                 ah.tr.appendChild ah.th
                 thead.appendChild ah.tr
             return axisHeaders
@@ -303,9 +303,6 @@ callWithJQuery ($) ->
             for col in [0..rowAttrs.length-1]
                 ah = buildAxisHeader axisHeaders, col, rowAttrs, opts.rowSubtotalDisplay
                 axisHeaders.tr.appendChild ah.th
-            if colAttrs.length != 0
-                th = createElement "th"
-                axisHeaders.tr.appendChild th
             thead.appendChild axisHeaders.tr
             return axisHeaders
 
@@ -315,9 +312,9 @@ callWithJQuery ($) ->
             label = if h.text is LOOKER_ROW_TOTAL_KEY then 'Total' else h.text
             return "#{arrow}#{label}"
 
-        buildColHeader = (axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts, depth = 0) ->
+        buildColHeader = (axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
             # DF Recurse
-            buildColHeader axisHeaders, attrHeaders, h[chKey], rowAttrs, colAttrs, node, opts, depth + 1 for chKey in h.children
+            buildColHeader axisHeaders, attrHeaders, h[chKey], rowAttrs, colAttrs, node, opts for chKey in h.children
             # Process
             ah = axisHeaders.ah[h.col]
             ah.attrHeaders.push h
@@ -340,7 +337,7 @@ callWithJQuery ($) ->
                             h.onClick axisHeaders, h, opts.colSubtotalDisplay
                     h.sTh = createElement "th", "pvtColLabelFiller #{classColShow} col#{h.row} colcol#{h.col} #{classColExpanded}"
                     h.sTh.setAttribute "data-colnode", h.node
-                    h.sTh.rowSpan = colAttrs.length-h.col
+                    # h.sTh.rowSpan = colAttrs.length-h.col
                     replaceClass h.sTh, classColShow, classColHide if opts.colSubtotalDisplay.hideOnExpand
                     h[h.children[0]].tr.appendChild h.sTh
 
@@ -349,11 +346,13 @@ callWithJQuery ($) ->
             h.clickStatus = clickStatusExpanded
 
             if h.text is LOOKER_ROW_TOTAL_KEY
-                if depth is 0
-                    h.th.rowSpan = colAttrs.length
+                if not h.children.length
+                    #h.th.rowSpan = colAttrs.length
                     addClass h.th, "pvtColTotal"
                     ah.tr.appendChild h.th
                     h.tr = ah.tr
+                else
+                    ah.tr.appendChild createElement "th", null, null, { colspan: aggregatorNames.length }
             else
                 ah.tr.appendChild h.th
                 h.tr = ah.tr
@@ -390,7 +389,6 @@ callWithJQuery ($) ->
                             tr.appendChild th
                 else
                     th = createElement "th", "pvtColLabel pvtColTotal", 'Total*', # XXX Asterix
-                        rowspan: colAttrs.length
                         colspan: aggregatorNames.length
                     tr.appendChild th
             else
@@ -417,7 +415,7 @@ callWithJQuery ($) ->
             lastPivotHeader = h.th
             addClass h.th, "#{classRowShow} pvtRowHeader lastPivot row#{h.row} rowcol#{h.col} #{classRowExpanded}"
             h.th.setAttribute "data-rownode", h.node
-            h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
+            # h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
             h.th.rowSpan = h.childrenSpan if h.children.length isnt 0
             h.th.textContent = getHeaderText h, rowAttrs, opts.rowSubtotalDisplay
 
@@ -439,7 +437,7 @@ callWithJQuery ($) ->
                 h.sTh = createElement "th", "pvtRowLabelFiller row#{h.row} rowcol#{h.col} #{classRowExpanded} #{classRowShow}"
                 replaceClass h.sTh, classRowShow, classRowHide if opts.rowSubtotalDisplay.hideOnExpand
                 h.sTh.setAttribute "data-rownode", h.node
-                h.sTh.colSpan = rowAttrs.length-(h.col+1) + if colAttrs.length != 0 then 1 else 0
+                #h.sTh.colSpan = rowAttrs.length-(h.col+1) + if colAttrs.length != 0 then 1 else 0
 
                 if opts.rowSubtotalDisplay.displayOnTop
                     h.tr.appendChild h.sTh
@@ -509,7 +507,7 @@ callWithJQuery ($) ->
 
         buildColTotalsHeader = (rowAttrs, colAttrs) ->
             tr = createElement "tr", "pvtRowTotal"
-            colspan = rowAttrs.length + (if colAttrs.length == 0 then 0 else 1)
+            colspan = colAttrs.length
             th = createElement "th", "pvtTotalLabel colTotal", opts.localeStrings.totals, {colspan: colspan}
             tr.appendChild th
             return tr
@@ -777,7 +775,11 @@ callWithJQuery ($) ->
                 node = counter: 0
                 buildColHeader colAxisHeaders, colAttrHeaders, colKeyHeaders[chKey], rowAttrs, colAttrs, node, opts for chKey in colKeyHeaders.children
                 if hasRowTotals and not useLookerRowTotals
-                    buildRowTotalsHeader colAxisHeaders.ah[0].tr, null, rowAttrs, colAttrs
+                    for ah, index in colAxisHeaders.ah
+                        if index == colAxisHeaders.ah.length - 1
+                            buildRowTotalsHeader ah.tr, null, rowAttrs, colAttrs
+                        else
+                            ah.tr.appendChild createElement "th", "pvtColTotalFiller", null, { colspan: colAttrs.length }
 
             tbody = createElement "tbody"
             result.appendChild tbody
