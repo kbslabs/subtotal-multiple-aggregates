@@ -315,9 +315,9 @@ callWithJQuery ($) ->
             label = if h.text is LOOKER_ROW_TOTAL_KEY then 'Total' else h.text
             return "#{arrow}#{label}"
 
-        buildColHeader = (axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) ->
+        buildColHeader = (axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts, depth = 0) ->
             # DF Recurse
-            buildColHeader axisHeaders, attrHeaders, h[chKey], rowAttrs, colAttrs, node, opts for chKey in h.children
+            buildColHeader axisHeaders, attrHeaders, h[chKey], rowAttrs, colAttrs, node, opts, depth + 1 for chKey in h.children
             # Process
             ah = axisHeaders.ah[h.col]
             ah.attrHeaders.push h
@@ -347,8 +347,16 @@ callWithJQuery ($) ->
             h.parent?.childrenSpan += h.th.colSpan
 
             h.clickStatus = clickStatusExpanded
-            ah.tr.appendChild h.th
-            h.tr = ah.tr
+
+            if h.text is LOOKER_ROW_TOTAL_KEY
+                if depth is 0
+                    h.th.rowSpan = colAttrs.length
+                    ah.tr.appendChild h.th
+                    h.tr = ah.tr
+            else
+                ah.tr.appendChild h.th
+                h.tr = ah.tr
+
             attrHeaders.push h
             node.counter++
 
