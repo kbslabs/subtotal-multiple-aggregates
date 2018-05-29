@@ -427,11 +427,11 @@ callWithJQuery ($) ->
                 h.sTh.colSpan = rowAttrs.length-(h.col+1) + if colAttrs.length != 0 then 1 else 0
 
                 if opts.rowSubtotalDisplay.displayOnTop
-                    #h.tr.appendChild h.sTh
+                    h.tr.appendChild h.sTh
                 else
                     h.th.rowSpan += 1 # if not opts.rowSubtotalDisplay.hideOnExpand
                     h.sTr = createElement "tr", "row#{h.row}"
-                    #h.sTr.appendChild h.sTh
+                    h.sTr.appendChild h.sTh
                     tbody.appendChild h.sTr
 
             h.th.rowSpan++ if h.children.length isnt 0
