@@ -288,7 +288,7 @@ callWithJQuery ($) ->
                 ah: []
             for attr, col in colAttrs
                 ah = buildAxisHeader axisHeaders, col, colAttrs, opts.colSubtotalDisplay
-                ah.tr = createElement "tr"
+                ah.tr = createElement "tr", "pvtColAxisHeaders"
                 ah.tr.appendChild createElement "th", null, null, {colspan: rowAttrs.length, rowspan: colAttrs.length} if col is 0 and rowAttrs.length isnt 0
                 ah.tr.appendChild ah.th
                 thead.appendChild ah.tr
@@ -299,7 +299,7 @@ callWithJQuery ($) ->
                 collapseAttrHeader: collapseRow
                 expandAttrHeader: expandRow
                 ah: []
-                tr: createElement "tr"
+                tr: createElement "tr", "pvtRowAxisHeaders"
             for col in [0..rowAttrs.length-1]
                 ah = buildAxisHeader axisHeaders, col, rowAttrs, opts.rowSubtotalDisplay
                 axisHeaders.tr.appendChild ah.th
@@ -351,6 +351,7 @@ callWithJQuery ($) ->
             if h.text is LOOKER_ROW_TOTAL_KEY
                 if depth is 0
                     h.th.rowSpan = colAttrs.length
+                    addClass h.th, "pvtColTotal"
                     ah.tr.appendChild h.th
                     h.tr = ah.tr
             else
@@ -388,7 +389,7 @@ callWithJQuery ($) ->
                             th = createElement "th", "rowTotal", { html: labels[name] }
                             tr.appendChild th
                 else
-                    th = createElement "th", "pvtColLabel", 'Total*', # XXX Asterix
+                    th = createElement "th", "pvtColLabel pvtColTotal", 'Total*', # XXX Asterix
                         rowspan: colAttrs.length
                         colspan: aggregatorNames.length
                     tr.appendChild th
@@ -503,7 +504,7 @@ callWithJQuery ($) ->
             return
 
         buildColTotalsHeader = (rowAttrs, colAttrs) ->
-            tr = createElement "tr"
+            tr = createElement "tr", "pvtRowTotal"
             colspan = rowAttrs.length + (if colAttrs.length == 0 then 0 else 1)
             th = createElement "th", "pvtTotalLabel colTotal", opts.localeStrings.totals, {colspan: colspan}
             tr.appendChild th
@@ -759,7 +760,10 @@ callWithJQuery ($) ->
                 delete colKeyHeaders[LOOKER_ROW_TOTAL_KEY]
                 colKeyHeaders.children = colKeyHeaders.children.filter((k) -> k != LOOKER_ROW_TOTAL_KEY)
 
-            result = createElement "table", "pvtTable", null, {style: "display: none;"}
+            tableClasses = "pvtTable"
+            tableClasses += " pvtHasRowTotals" if hasRowTotals
+            tableClasses += " pvtHasColTotals" if hasColTotals
+            result = createElement "table", tableClasses, null, {style: "display: none;"}
 
             thead = createElement "thead"
             result.appendChild thead

@@ -12,7 +12,8 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     concat = require('gulp-concat'),
     cleanCSS = require('gulp-minify-css'),
-    serve = require('gulp-serve');
+    sass = require('gulp-sass'),
+    serve = require('gulp-serve'),
     debug = require('gulp-debug');
 
 gulp.task('makeCss', function() {
@@ -23,6 +24,12 @@ gulp.task('makeCss', function() {
         .pipe(cleanCSS())
         .pipe(concat('subtotal.min.css'))//trick to output to new file
         .pipe(gulp.dest('./dist/'))
+
+    gulp.src(['./themes/*.scss'])
+        .pipe(sourcemaps.init())
+        .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('./dist'))
 });
 
 gulp.task('makeJs', function() {
@@ -95,7 +102,7 @@ gulp.task('serve', serve('.'));
 
 gulp.task('watch', function() {
   gulp.watch(['./*.coffee', './tests/*.coffee'], ['makeJs']);
-  gulp.watch('./subtotal.css', ['makeCss']);
+  gulp.watch(['./subtotal.css', './themes/*.scss'], ['makeCss']);
 });
 
 gulp.task('default', ['makeJs', 'makeCss']);

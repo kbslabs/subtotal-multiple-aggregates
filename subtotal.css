@@ -1,10 +1,3 @@
-    /* XXX Looker-specific */
-    @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-    #vis, .vis-container {
-        overflow: auto;
-        font-family: 'Open Sans', Helvetica, sans-serif;
-    }
-
     /* AxisLabel */
     table.pvtTable .pvtAxisLabel {
 	    white-space: nowrap;
