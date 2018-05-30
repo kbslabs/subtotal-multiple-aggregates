@@ -310,7 +310,7 @@ callWithJQuery ($) ->
                 ah: []
             for attr, col in colAttrs
                 ah = buildAxisHeader axisHeaders, col, colAttrs, opts.colSubtotalDisplay
-                ah.th.colSpan = colAttrs.length
+                ah.th.colSpan = rowAttrs.length
                 ah.tr = createElement "tr", "pvtColAxisHeaders"
                 ah.tr.appendChild ah.th
                 thead.appendChild ah.tr
@@ -529,7 +529,7 @@ callWithJQuery ($) ->
 
         buildColTotalsHeader = (rowAttrs, colAttrs) ->
             tr = createElement "tr", "pvtRowTotal"
-            colspan = colAttrs.length
+            colspan = rowAttrs.length
             th = createElement "th", "pvtTotalLabel colTotal", opts.localeStrings.totals, {colspan: colspan}
             tr.appendChild th
             return tr

@@ -111,10 +111,14 @@
         vertical-align: bottom;
     }
     .pvtRowLabelFiller {
+        background: $background-color !important;
         border-bottom: none;
     }
-    .pvtRowLabel.rowcol0 {
-        background: $background-color;
+    th.pvtRowLabel {
+        background: $background-color !important;
+        &.rowexpanded, .rowcollapsed {
+            cursor: pointer;
+        }
     }
 
     .rowhide, .colhide {
