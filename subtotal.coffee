@@ -16,7 +16,6 @@ callWithJQuery ($) ->
     class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData
         constructor: (input, opts) ->
             super input, opts
-            window.pivotData = this # XXX
 
             @hasColTotals = opts.hasColTotals ? true
             @hasRowTotals = if @colAttrs.length then (opts.hasRowTotals ? true) else true
@@ -410,7 +409,7 @@ callWithJQuery ($) ->
                             th = createElement "th", "rowTotal", labels[name]
                             tr.appendChild th
                 else
-                    th = createElement "th", "pvtColLabel pvtColTotal", 'Total*', # XXX Asterix
+                    th = createElement "th", "pvtColLabel pvtColTotal", 'Total*',
                         colspan: aggregatorNames.length
                     tr.appendChild th
             else

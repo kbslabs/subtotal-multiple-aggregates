@@ -25,7 +25,6 @@
         constructor(input, opts) {
           var i, l, len, name, ref, ref1, ref2, ref3, ref4, ref5, ref6;
           super(input, opts);
-          window.pivotData = this; // XXX
           this.hasColTotals = (ref = opts.hasColTotals) != null ? ref : true;
           this.hasRowTotals = this.colAttrs.length ? (ref1 = opts.hasRowTotals) != null ? ref1 : true : true;
           this.labels = (ref2 = opts.labels) != null ? ref2 : {};
@@ -602,7 +601,7 @@
               }
             }
           } else {
-            th = createElement("th", "pvtColLabel pvtColTotal", 'Total*', { // XXX Asterix
+            th = createElement("th", "pvtColLabel pvtColTotal", 'Total*', {
               colspan: aggregatorNames.length
             });
             tr.appendChild(th);
