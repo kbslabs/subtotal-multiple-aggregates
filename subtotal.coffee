@@ -456,18 +456,19 @@ callWithJQuery ($) ->
                         event = event || window.event
                         h.onClick axisHeaders, h, opts.rowSubtotalDisplay
 
-                h.sTh = createElement "th", "pvtRowLabelFiller row#{h.row} rowcol#{h.col} #{classRowExpanded} #{classRowShow}"
-                replaceClass h.sTh, classRowShow, classRowHide if opts.rowSubtotalDisplay.hideOnExpand
-                h.sTh.setAttribute "data-rownode", h.node
-                #h.sTh.colSpan = rowAttrs.length-(h.col+1) + if colAttrs.length != 0 then 1 else 0
+                for i in [0...rowAttrs.length-h.col-1]
+                    h.sTh = createElement "th", "pvtRowLabelFiller row#{h.row} rowcol#{h.col} #{classRowExpanded} #{classRowShow}"
+                    replaceClass h.sTh, classRowShow, classRowHide if opts.rowSubtotalDisplay.hideOnExpand
+                    h.sTh.setAttribute "data-rownode", h.node
+                    #h.sTh.colSpan = rowAttrs.length-h.col-1
 
-                if opts.rowSubtotalDisplay.displayOnTop
-                    h.tr.appendChild h.sTh
-                else
-                    h.th.rowSpan += 1 # if not opts.rowSubtotalDisplay.hideOnExpand
-                    h.sTr = createElement "tr", "row#{h.row}"
-                    h.sTr.appendChild h.sTh
-                    tbody.appendChild h.sTr
+                    if opts.rowSubtotalDisplay.displayOnTop
+                        h.tr.appendChild h.sTh
+                    else
+                        h.th.rowSpan += 1 # if not opts.rowSubtotalDisplay.hideOnExpand
+                        h.sTr = createElement "tr", "row#{h.row}"
+                        h.sTr.appendChild h.sTh
+                        tbody.appendChild h.sTr
 
             h.th.rowSpan++ if h.children.length isnt 0
             h.parent?.childrenSpan += h.th.rowSpan
@@ -510,7 +511,6 @@ callWithJQuery ($) ->
                             "data-rownode": rh.node
                             "data-colnode": ch.node,
                             getTableEventHandlers val, rh.key, ch.key, rowAttrs, colAttrs, opts
-
                         tr.appendChild td
 
                 # buildRowTotal
