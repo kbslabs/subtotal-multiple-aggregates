@@ -1,6 +1,8 @@
 (function() {
-  var callWithJQuery,
+  var callWithJQuery, flatten,
     hasProp = {}.hasOwnProperty;
+
+  flatten = require('array-flatten');
 
   callWithJQuery = function(pivotModule) {
     if (typeof exports === "object" && typeof module === "object") { // CommonJS
@@ -56,7 +58,7 @@
               return this.processRecord(record);
             }
           });
-          this.hasLookerRowTotals = this.getColKeys().flatten().includes(LOOKER_ROW_TOTAL_KEY);
+          this.hasLookerRowTotals = flatten(this.getColKeys()).includes(LOOKER_ROW_TOTAL_KEY);
           this.useLookerRowTotals = ((ref6 = opts.useLookerRowTotals) != null ? ref6 : true) && this.hasLookerRowTotals;
         }
 
@@ -188,7 +190,7 @@
     }).call(this);
     $.pivotUtilities.SubtotalPivotDataMulti = SubtotalPivotDataMulti;
     SubtotalRenderer = function(pivotData, opts) {
-      var addClass, adjustAxisHeader, aggregatorNames, aggregators, allTotal, arrowCollapsed, arrowExpanded, buildAxisHeader, buildColAxisHeaders, buildColHeader, buildColTotals, buildColTotalsHeader, buildGrandTotal, buildRowAxisHeaders, buildRowHeader, buildRowTotalsHeader, buildValues, classColCollapsed, classColExpanded, classColHide, classColShow, classCollapsed, classExpanded, classRowCollapsed, classRowExpanded, classRowHide, classRowShow, clickStatusCollapsed, clickStatusExpanded, colAttrs, colKeys, colTotals, collapseAxis, collapseAxisHeaders, collapseChildCol, collapseChildRow, collapseCol, collapseHiddenColSubtotal, collapseRow, collapseShowColSubtotal, collapseShowRowSubtotal, createElement, defaults, expandAxis, expandChildCol, expandChildRow, expandCol, expandHideColSubtotal, expandHideRowSubtotal, expandRow, expandShowColSubtotal, expandShowRowSubtotal, getHeaderText, getTableEventHandlers, hasClass, hasColTotals, hasLookerRowTotals, hasRowTotals, hideChildCol, hideChildRow, labels, main, processKeys, removeClass, replaceClass, rowAttrs, rowKeys, rowTotals, setAttributes, showChildCol, showChildRow, tree, useLookerRowTotals;
+      var addClass, adjustAxisHeader, aggregatorNames, aggregators, allTotal, arrowCollapsed, arrowExpanded, buildAxisHeader, buildColAxisHeaders, buildColHeader, buildColTotals, buildColTotalsHeader, buildGrandTotal, buildRowAxisHeaders, buildRowHeader, buildRowTotalsHeader, buildValues, classColCollapsed, classColExpanded, classColHide, classColShow, classCollapsed, classExpanded, classRowCollapsed, classRowExpanded, classRowHide, classRowShow, clickStatusCollapsed, clickStatusExpanded, colAttrs, colKeys, colTotals, collapseAxis, collapseAxisHeaders, collapseChildCol, collapseChildRow, collapseCol, collapseHiddenColSubtotal, collapseRow, collapseShowColSubtotal, collapseShowRowSubtotal, createElement, defaults, escapeHtml, expandAxis, expandChildCol, expandChildRow, expandCol, expandHideColSubtotal, expandHideRowSubtotal, expandRow, expandShowColSubtotal, expandShowRowSubtotal, getHeaderText, getTableEventHandlers, hasClass, hasColTotals, hasLookerRowTotals, hasRowTotals, hideChildCol, hideChildRow, labels, lastPivotHeader, main, parseLabel, processKeys, removeClass, replaceClass, rowAttrs, rowKeys, rowTotals, setAttributes, showChildCol, showChildRow, tree, useLookerRowTotals;
       defaults = {
         table: {
           clickCallback: null
@@ -208,8 +210,8 @@
         },
         colSubtotalDisplay: {
           displayOnTop: true,
-          disableFrom: 99999,
-          collapseAt: 99999,
+          disableFrom: 0,
+          collapseAt: 0,
           hideOnExpand: false,
           disableExpandCollapse: false
         }
@@ -232,6 +234,9 @@
       }
       if (typeof opts.colSubtotalDisplay.collapseAt !== 'undefined' && opts.collapseColsAt !== null) {
         opts.colSubtotalDisplay.collapseAt = opts.collapseColsAt;
+      }
+      if (opts.colSubtotalDisplay.disableFrom > 0) {
+        throw new Error('Column subtotals are unimplemented');
       }
       colAttrs = pivotData.colAttrs;
       rowAttrs = pivotData.rowAttrs;
@@ -298,18 +303,41 @@
         return addClass(element, byClassName);
       };
       // Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- End
-      createElement = function(elementType, className, content, attributes, eventHandlers) {
+      escapeHtml = function(unsafe) {
+        return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      };
+      parseLabel = function(parts) {
+        var append, out;
+        // Safe way to insert stylized labels. Parts can be a string or object { label, subabel }, or array as such.
+        out = '';
+        append = function(value) {
+          var l, len, results, x;
+          if (Array.isArray(value)) {
+            results = [];
+            for (l = 0, len = value.length; l < len; l++) {
+              x = value[l];
+              results.push(append(x));
+            }
+            return results;
+          } else if (value != null ? value.label : void 0) {
+            out += escapeHtml(value.label);
+            if (value.sublabel) {
+              return out += ` <em>${escapeHtml(value.sublabel)}</em>`;
+            }
+          } else if (value !== null && value !== void 0) {
+            return out += escapeHtml(String(value));
+          }
+        };
+        append(parts);
+        return out;
+      };
+      createElement = function(elementType, className, label, attributes, eventHandlers) {
         var attr, e, event, handler, val;
         e = document.createElement(elementType);
         if (className != null) {
           e.className = className;
         }
-        if ((content != null ? content.html : void 0) != null) {
-          e.innerHTML = content.html;
-        }
-        if ((content != null) && ((content != null ? content.html : void 0) == null)) {
-          e.textContent = content;
-        }
+        e.innerHTML = parseLabel(label);
         if (attributes != null) {
           for (attr in attributes) {
             if (!hasProp.call(attributes, attr)) continue;
@@ -412,9 +440,7 @@
         if (col === attrs.length - 1 || col >= opts.disableFrom || opts.disableExpandCollapse) {
           arrow = "";
         }
-        ah.th = createElement("th", `pvtAxisLabel ${hClass}`, {
-          html: `${arrow}${ah.text}`
-        });
+        ah.th = createElement("th", `pvtAxisLabel ${hClass}`, [arrow, ah.text]);
         if (col < attrs.length - 1 && col < opts.disableFrom && !opts.disableExpandCollapse) {
           ah.th.onclick = function(event) {
             event = event || window.event;
@@ -434,33 +460,24 @@
         for (col = l = 0, len = colAttrs.length; l < len; col = ++l) {
           attr = colAttrs[col];
           ah = buildAxisHeader(axisHeaders, col, colAttrs, opts.colSubtotalDisplay);
-          ah.tr = createElement("tr");
-          if (col === 0 && rowAttrs.length !== 0) {
-            ah.tr.appendChild(createElement("th", null, null, {
-              colspan: rowAttrs.length,
-              rowspan: colAttrs.length
-            }));
-          }
+          ah.th.colSpan = rowAttrs.length;
+          ah.tr = createElement("tr", "pvtColAxisHeaders");
           ah.tr.appendChild(ah.th);
           thead.appendChild(ah.tr);
         }
         return axisHeaders;
       };
       buildRowAxisHeaders = function(thead, rowAttrs, colAttrs, opts) {
-        var ah, axisHeaders, col, l, ref, th;
+        var ah, axisHeaders, col, l, ref;
         axisHeaders = {
           collapseAttrHeader: collapseRow,
           expandAttrHeader: expandRow,
           ah: [],
-          tr: createElement("tr")
+          tr: createElement("tr", "pvtRowAxisHeaders")
         };
         for (col = l = 0, ref = rowAttrs.length - 1; (0 <= ref ? l <= ref : l >= ref); col = 0 <= ref ? ++l : --l) {
           ah = buildAxisHeader(axisHeaders, col, rowAttrs, opts.rowSubtotalDisplay);
           axisHeaders.tr.appendChild(ah.th);
-        }
-        if (colAttrs.length !== 0) {
-          th = createElement("th");
-          axisHeaders.tr.appendChild(th);
         }
         thead.appendChild(axisHeaders.tr);
         return axisHeaders;
@@ -506,8 +523,8 @@
           }
           h.sTh = createElement("th", `pvtColLabelFiller ${classColShow} col${h.row} colcol${h.col} ${classColExpanded}`);
           h.sTh.setAttribute("data-colnode", h.node);
-          h.sTh.rowSpan = colAttrs.length - h.col;
           if (opts.colSubtotalDisplay.hideOnExpand) {
+            // h.sTh.rowSpan = colAttrs.length-h.col
             replaceClass(h.sTh, classColShow, classColHide);
           }
           h[h.children[0]].tr.appendChild(h.sTh);
@@ -516,56 +533,92 @@
           ref1.childrenSpan += h.th.colSpan;
         }
         h.clickStatus = clickStatusExpanded;
-        ah.tr.appendChild(h.th);
-        h.tr = ah.tr;
+        if (h.text === LOOKER_ROW_TOTAL_KEY) {
+          if (!h.children.length) {
+            //h.th.rowSpan = colAttrs.length
+            addClass(h.th, "pvtColTotal");
+            ah.tr.appendChild(h.th);
+            h.tr = ah.tr;
+          } else {
+            ah.tr.appendChild(createElement("th", null, null, {
+              colspan: aggregatorNames.length
+            }));
+          }
+        } else {
+          ah.tr.appendChild(h.th);
+          h.tr = ah.tr;
+        }
         attrHeaders.push(h);
         return node.counter++;
       };
       buildRowTotalsHeader = function(tr, colKeyHeaders, rowAttrs, colAttrs) {
-        var i, l, len, len1, len2, name, o, q, r, ref, th;
+        var addHeaders, child, l, len, len1, len2, len3, name, o, q, r, ref, th;
         if (colAttrs.length > 0) {
           // We have pivots.
           if (colKeyHeaders) {
-            for (i = l = 0, ref = colKeyHeaders.children.length; (0 <= ref ? l < ref : l > ref); i = 0 <= ref ? ++l : --l) {
-              if (colKeyHeaders.children[i] === LOOKER_ROW_TOTAL_KEY && !useLookerRowTotals) {
-                continue;
+            addHeaders = function(headers) {
+              var child, l, len, len1, name, o, ref, results, results1, th;
+              if (headers.children.length > 0) {
+                ref = headers.children;
+                results = [];
+                for (l = 0, len = ref.length; l < len; l++) {
+                  child = ref[l];
+                  if (child === LOOKER_ROW_TOTAL_KEY) {
+                    continue;
+                  }
+                  results.push(addHeaders(headers[child]));
+                }
+                return results;
+              } else {
+                results1 = [];
+                for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
+                  name = aggregatorNames[o];
+                  th = createElement("th", "rowTotal", labels[name]);
+                  results1.push(tr.appendChild(th));
+                }
+                return results1;
               }
-              for (o = 0, len = aggregatorNames.length; o < len; o++) {
-                name = aggregatorNames[o];
-                th = createElement("th", "rowTotal", {
-                  html: labels[name]
-                });
-                tr.appendChild(th);
+            };
+            addHeaders(colKeyHeaders);
+            if (useLookerRowTotals) {
+              ref = colKeyHeaders.children;
+              for (l = 0, len = ref.length; l < len; l++) {
+                child = ref[l];
+                if (child === LOOKER_ROW_TOTAL_KEY) {
+                  continue;
+                }
+                for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
+                  name = aggregatorNames[o];
+                  th = createElement("th", "rowTotal", labels[name]);
+                  tr.appendChild(th);
+                }
               }
             }
             if (hasRowTotals && !useLookerRowTotals) {
-              for (q = 0, len1 = aggregatorNames.length; q < len1; q++) {
+              for (q = 0, len2 = aggregatorNames.length; q < len2; q++) {
                 name = aggregatorNames[q];
-                th = createElement("th", "rowTotal", {
-                  html: labels[name]
-                });
+                th = createElement("th", "rowTotal", labels[name]);
                 tr.appendChild(th);
               }
             }
           } else {
-            th = createElement("th", "pvtColLabel", 'Total*', { // XXX Asterix
+            th = createElement("th", "pvtColLabel pvtColTotal", 'Total*', { // XXX Asterix
               colspan: aggregatorNames.length
             });
             tr.appendChild(th);
           }
         } else {
 // No pivots, but we still need to add column headers.
-          for (r = 0, len2 = aggregatorNames.length; r < len2; r++) {
+          for (r = 0, len3 = aggregatorNames.length; r < len3; r++) {
             name = aggregatorNames[r];
-            th = createElement("th", "rowTotal", {
-              html: labels[name]
-            });
+            th = createElement("th", "rowTotal", labels[name]);
             tr.appendChild(th);
           }
         }
       };
+      lastPivotHeader = null;
       buildRowHeader = function(tbody, axisHeaders, attrHeaders, h, rowAttrs, colAttrs, node, opts) {
-        var ah, chKey, firstChild, l, len, ref, ref1;
+        var ah, chKey, firstChild, i, l, len, o, ref, ref1, ref2;
         ref = h.children;
         for (l = 0, len = ref.length; l < len; l++) {
           chKey = ref[l];
@@ -580,12 +633,14 @@
         if (h.children.length !== 0) {
           firstChild = h[h.children[0]];
         }
-        addClass(h.th, `${classRowShow} row${h.row} rowcol${h.col} ${classRowExpanded}`);
-        h.th.setAttribute("data-rownode", h.node);
-        if (h.col === rowAttrs.length - 1 && colAttrs.length !== 0) {
-          h.th.colSpan = 2;
+        if (lastPivotHeader) {
+          removeClass(lastPivotHeader, "lastPivot");
         }
+        lastPivotHeader = h.th;
+        addClass(h.th, `${classRowShow} pvtRowHeader lastPivot row${h.row} rowcol${h.col} ${classRowExpanded}`);
+        h.th.setAttribute("data-rownode", h.node);
         if (h.children.length !== 0) {
+          // h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
           h.th.rowSpan = h.childrenSpan;
         }
         h.th.textContent = getHeaderText(h, rowAttrs, opts.rowSubtotalDisplay);
@@ -605,26 +660,28 @@
               return h.onClick(axisHeaders, h, opts.rowSubtotalDisplay);
             };
           }
-          h.sTh = createElement("th", `pvtRowLabelFiller row${h.row} rowcol${h.col} ${classRowExpanded} ${classRowShow}`);
-          if (opts.rowSubtotalDisplay.hideOnExpand) {
-            replaceClass(h.sTh, classRowShow, classRowHide);
-          }
-          h.sTh.setAttribute("data-rownode", h.node);
-          h.sTh.colSpan = rowAttrs.length - (h.col + 1) + (colAttrs.length !== 0 ? 1 : 0);
-          if (opts.rowSubtotalDisplay.displayOnTop) {
-            h.tr.appendChild(h.sTh);
-          } else {
-            h.th.rowSpan += 1; // if not opts.rowSubtotalDisplay.hideOnExpand
-            h.sTr = createElement("tr", `row${h.row}`);
-            h.sTr.appendChild(h.sTh);
-            tbody.appendChild(h.sTr);
+          for (i = o = 0, ref1 = rowAttrs.length - h.col - 1; (0 <= ref1 ? o < ref1 : o > ref1); i = 0 <= ref1 ? ++o : --o) {
+            h.sTh = createElement("th", `pvtRowLabelFiller row${h.row} rowcol${h.col} ${classRowExpanded} ${classRowShow}`);
+            if (opts.rowSubtotalDisplay.hideOnExpand) {
+              replaceClass(h.sTh, classRowShow, classRowHide);
+            }
+            h.sTh.setAttribute("data-rownode", h.node);
+            //h.sTh.colSpan = rowAttrs.length-h.col-1
+            if (opts.rowSubtotalDisplay.displayOnTop) {
+              h.tr.appendChild(h.sTh);
+            } else {
+              h.th.rowSpan += 1; // if not opts.rowSubtotalDisplay.hideOnExpand
+              h.sTr = createElement("tr", `row${h.row}`);
+              h.sTr.appendChild(h.sTh);
+              tbody.appendChild(h.sTr);
+            }
           }
         }
         if (h.children.length !== 0) {
           h.th.rowSpan++;
         }
-        if ((ref1 = h.parent) != null) {
-          ref1.childrenSpan += h.th.rowSpan;
+        if ((ref2 = h.parent) != null) {
+          ref2.childrenSpan += h.th.rowSpan;
         }
         h.clickStatus = clickStatusExpanded;
         attrHeaders.push(h);
@@ -726,8 +783,8 @@
       };
       buildColTotalsHeader = function(rowAttrs, colAttrs) {
         var colspan, th, tr;
-        tr = createElement("tr");
-        colspan = rowAttrs.length + (colAttrs.length === 0 ? 0 : 1);
+        tr = createElement("tr", "pvtRowTotal");
+        colspan = rowAttrs.length;
         th = createElement("th", "pvtTotalLabel colTotal", opts.localeStrings.totals, {
           colspan: colspan
         });
@@ -785,7 +842,7 @@
         for (i = l = ref = col, ref1 = collapsible; (ref <= ref1 ? l <= ref1 : l >= ref1); i = ref <= ref1 ? ++l : --l) {
           ah = axisHeaders.ah[i];
           replaceClass(ah.th, classExpanded, classCollapsed);
-          ah.th.textContent = ` ${arrowCollapsed} ${ah.text}`;
+          ah.th.innerHTML = parseLabel([` ${arrowCollapsed} `, ah.text]);
           ah.clickStatus = clickStatusCollapsed;
           results.push(ah.onClick = expandAxis);
         }
@@ -798,7 +855,7 @@
           return collapseAxisHeaders(axisHeaders, col, opts);
         } else if (ah.expandedCount === ah.expandables) {
           replaceClass(ah.th, classCollapsed, classExpanded);
-          ah.th.textContent = ` ${arrowExpanded} ${ah.text}`;
+          ah.th.innerHTML = parseLabel([` ${arrowExpanded} `, ah.text]);
           ah.clickStatus = clickStatusExpanded;
           return ah.onClick = collapseAxis;
         }
@@ -1129,7 +1186,7 @@
       };
       // when h.clickStatus is clickStatusCollapsed and h.children.length isnt 0 for i in [0..col]
       main = function(rowAttrs, rowKeys, colAttrs, colKeys) {
-        var chKey, colAttrHeaders, colAxisHeaders, colKeyHeaders, l, len, len1, node, o, ref, ref1, result, rowAttrHeaders, rowAxisHeaders, rowKeyHeaders, tbody, thead, tr;
+        var ah, chKey, colAttrHeaders, colAxisHeaders, colKeyHeaders, index, l, len, len1, len2, node, o, q, ref, ref1, ref2, result, rowAttrHeaders, rowAxisHeaders, rowKeyHeaders, tableClasses, tbody, thead, tr;
         rowAttrHeaders = [];
         colAttrHeaders = [];
         if (colAttrs.length !== 0 && colKeys.length !== 0) {
@@ -1144,7 +1201,14 @@
             return k !== LOOKER_ROW_TOTAL_KEY;
           });
         }
-        result = createElement("table", "pvtTable", null, {
+        tableClasses = "pvtTable";
+        if (hasRowTotals) {
+          tableClasses += " pvtHasRowTotals";
+        }
+        if (hasColTotals) {
+          tableClasses += " pvtHasColTotals";
+        }
+        result = createElement("table", tableClasses, null, {
           style: "display: none;"
         });
         thead = createElement("thead");
@@ -1160,7 +1224,17 @@
             buildColHeader(colAxisHeaders, colAttrHeaders, colKeyHeaders[chKey], rowAttrs, colAttrs, node, opts);
           }
           if (hasRowTotals && !useLookerRowTotals) {
-            buildRowTotalsHeader(colAxisHeaders.ah[0].tr, null, rowAttrs, colAttrs);
+            ref1 = colAxisHeaders.ah;
+            for (index = o = 0, len1 = ref1.length; o < len1; index = ++o) {
+              ah = ref1[index];
+              if (index === colAxisHeaders.ah.length - 1) {
+                buildRowTotalsHeader(ah.tr, null, rowAttrs, colAttrs);
+              } else {
+                ah.tr.appendChild(createElement("th", "pvtColTotalFiller", null, {
+                  colspan: colAttrs.length
+                }));
+              }
+            }
           }
         }
         tbody = createElement("tbody");
@@ -1171,9 +1245,9 @@
           node = {
             counter: 0
           };
-          ref1 = rowKeyHeaders.children;
-          for (o = 0, len1 = ref1.length; o < len1; o++) {
-            chKey = ref1[o];
+          ref2 = rowKeyHeaders.children;
+          for (q = 0, len2 = ref2.length; q < len2; q++) {
+            chKey = ref2[q];
             buildRowHeader(tbody, rowAxisHeaders, rowAttrHeaders, rowKeyHeaders[chKey], rowAttrs, colAttrs, node, opts);
           }
         }
