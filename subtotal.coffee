@@ -200,11 +200,33 @@ callWithJQuery ($) ->
             addClass element, byClassName
         # Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- End
 
-        createElement = (elementType, className, content, attributes, eventHandlers) ->
+        escapeHtml = (unsafe) ->
+            unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;")
+
+        parseLabel = (parts) ->
+            # Safe way to insert stylized labels. Parts can be a string or object { label, subabel }, or array as such.
+            out = ''
+            append = (value) ->
+                if Array.isArray(value)
+                    append(x) for x in value
+                else if value?.label
+                    out += escapeHtml value.label
+                    if value.sublabel
+                        out += " <em>#{escapeHtml value.sublabel}</em>"
+                else if value != null and value != undefined
+                    out += escapeHtml String(value)
+            append parts
+            return out
+
+        createElement = (elementType, className, label, attributes, eventHandlers) ->
             e = document.createElement elementType
             e.className = className if className?
-            e.innerHTML = content.html if content?.html?
-            e.textContent = content if content? and not content?.html?
+            e.innerHTML = parseLabel label
             e.setAttribute attr, val for own attr, val of attributes if attributes?
             e.addEventListener event, handler for own event, handler of eventHandlers if eventHandlers?
             return e
@@ -273,7 +295,7 @@ callWithJQuery ($) ->
                 ah.onClick = expandAxis
             if col == attrs.length-1 or col >= opts.disableFrom or opts.disableExpandCollapse
                 arrow = ""
-            ah.th = createElement "th", "pvtAxisLabel #{hClass}", { html: "#{arrow}#{ah.text}" }
+            ah.th = createElement "th", "pvtAxisLabel #{hClass}", [arrow, ah.text]
             if col < attrs.length-1 and col < opts.disableFrom and not opts.disableExpandCollapse
                 ah.th.onclick = (event) ->
                     event = event || window.event
@@ -372,7 +394,7 @@ callWithJQuery ($) ->
                                 addHeaders(headers[child])
                         else
                             for name in aggregatorNames
-                                th = createElement "th", "rowTotal", { html: labels[name] }
+                                th = createElement "th", "rowTotal", labels[name]
                                 tr.appendChild th
                     addHeaders(colKeyHeaders)
 
@@ -380,12 +402,12 @@ callWithJQuery ($) ->
                         for child in colKeyHeaders.children
                             continue if child is LOOKER_ROW_TOTAL_KEY
                             for name in aggregatorNames
-                                th = createElement "th", "rowTotal", { html: labels[name] }
+                                th = createElement "th", "rowTotal", labels[name]
                                 tr.appendChild th
 
                     if hasRowTotals and not useLookerRowTotals
                         for name in aggregatorNames
-                            th = createElement "th", "rowTotal", { html: labels[name] }
+                            th = createElement "th", "rowTotal", labels[name]
                             tr.appendChild th
                 else
                     th = createElement "th", "pvtColLabel pvtColTotal", 'Total*', # XXX Asterix
@@ -394,7 +416,7 @@ callWithJQuery ($) ->
             else
                 # No pivots, but we still need to add column headers.
                 for name in aggregatorNames
-                    th = createElement "th", "rowTotal", { html: labels[name] }
+                    th = createElement "th", "rowTotal", labels[name]
                     tr.appendChild th
             return
 
@@ -547,7 +569,7 @@ callWithJQuery ($) ->
             for i in [col..collapsible]
                 ah = axisHeaders.ah[i]
                 replaceClass ah.th, classExpanded, classCollapsed
-                ah.th.textContent = " #{arrowCollapsed} #{ah.text}"
+                ah.th.innerHTML = parseLabel([" #{arrowCollapsed} ", ah.text])
                 ah.clickStatus = clickStatusCollapsed
                 ah.onClick = expandAxis
 
@@ -557,7 +579,7 @@ callWithJQuery ($) ->
                 collapseAxisHeaders axisHeaders, col, opts
             else if ah.expandedCount is ah.expandables
                 replaceClass ah.th, classCollapsed, classExpanded
-                ah.th.textContent = " #{arrowExpanded} #{ah.text}"
+                ah.th.innerHTML = parseLabel([" #{arrowExpanded} ", ah.text])
                 ah.clickStatus = clickStatusExpanded
                 ah.onClick = collapseAxis
 
