@@ -113,8 +113,8 @@
     .pvtRowLabelFiller {
         border-bottom: none;
     }
-    .pvtRowLabel {
-        background: $background-color !important;
+    .pvtRowLabel.rowcol0 {
+        background: $background-color;
     }
 
     .rowhide, .colhide {

@@ -1,0 +1,23 @@
+@import 'common';
+
+$text-color: #333;
+$text-color-light: #8c8c8c;
+
+$border-light: #ddd;
+$border-dark: #999;
+
+$measure-light: #f3f3f3;
+$measure-dark: #fff;
+$measure-darker: #fff;
+
+$dimension-light: #f3f3f3;
+$dimension-dark: #fff;
+$dimension-darker: #fff;
+
+@import 'styles';
+
+#vis {
+    .pvtRowTotal th, .pvtRowTotal td, .pvtColTotal {
+        font-weight: 700;
+    }
+}
