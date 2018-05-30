@@ -1,8 +1,9 @@
 {
-  "name": "subtotal",
+  "name": "subtotal-multiple-aggregates",
   "version": "1.11.0-alpha.0",
   "description": "Subtotal.js is a JavaScript plugin for PivotTable.js. It renders subtotals of rows and columns with the ability to expand and collapse rows.",
   "main": "dist/subtotal.js",
+  "private": true,
   "scripts": {
     "build": "gulp",
     "watch": "gulp watch"
@@ -22,16 +23,8 @@
     "collapse",
     "summary"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/nagarajanchinnasamy/subtotal.git"
-  },
   "author": "Nagarajan Chinnasamy",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/nagarajanchinnasamy/subtotal/issues"
-  },
-  "homepage": "https://github.com/nagarajanchinnasamy/subtotal",
   "dependencies": {
     "array-flatten": "^2.1.1",
     "pivottable": ">=2.7.0"
