@@ -382,6 +382,7 @@ callWithJQuery ($) ->
             node.counter++
 
         buildRowTotalsHeader = (tr, colKeyHeaders, rowAttrs, colAttrs) ->
+            # The rowTotalTypeX classes are added for easier debugging.
             if colAttrs.length > 0
                 # We have pivots.
                 if colKeyHeaders
@@ -393,20 +394,18 @@ callWithJQuery ($) ->
                                 addHeaders(headers[child])
                         else
                             for name in aggregatorNames
-                                th = createElement "th", "rowTotal", labels[name]
+                                th = createElement "th", "rowTotal rowTotalTypeA", labels[name]
                                 tr.appendChild th
                     addHeaders(colKeyHeaders)
 
                     if useLookerRowTotals
-                        for child in colKeyHeaders.children
-                            continue if child is LOOKER_ROW_TOTAL_KEY
-                            for name in aggregatorNames
-                                th = createElement "th", "rowTotal", labels[name]
-                                tr.appendChild th
+                        for name in aggregatorNames
+                            th = createElement "th", "rowTotal rowTotalTypeB", labels[name]
+                            tr.appendChild th
 
                     if hasRowTotals and not useLookerRowTotals
                         for name in aggregatorNames
-                            th = createElement "th", "rowTotal", labels[name]
+                            th = createElement "th", "rowTotal rowTotalTypeC", labels[name]
                             tr.appendChild th
                 else
                     th = createElement "th", "pvtColLabel pvtColTotal", 'Total*',
@@ -415,7 +414,7 @@ callWithJQuery ($) ->
             else
                 # No pivots, but we still need to add column headers.
                 for name in aggregatorNames
-                    th = createElement "th", "rowTotal", labels[name]
+                    th = createElement "th", "rowTotal rowTotalTypeD", labels[name]
                     tr.appendChild th
             return
 
@@ -517,7 +516,7 @@ callWithJQuery ($) ->
                     for name in aggregatorNames
                         totalAggregator = rowTotals[rh.flatKey][name]
                         val = totalAggregator.value()
-                        td = createElement "td", "pvtTotal rowTotal #{rCls}", totalAggregator.format(val),
+                        td = createElement "td", "pvtTotal rowTotal rowTotalTypeX #{rCls}", totalAggregator.format(val),
                             "data-value": val
                             "data-row": "row#{rh.row}"
                             "data-rowcol": "col#{rh.col}"

@@ -551,7 +551,8 @@
         return node.counter++;
       };
       buildRowTotalsHeader = function(tr, colKeyHeaders, rowAttrs, colAttrs) {
-        var addHeaders, child, l, len, len1, len2, len3, name, o, q, r, ref, th;
+        var addHeaders, l, len, len1, len2, name, o, q, th;
+        // The rowTotalTypeX classes are added for easier debugging.
         if (colAttrs.length > 0) {
           // We have pivots.
           if (colKeyHeaders) {
@@ -572,7 +573,7 @@
                 results1 = [];
                 for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
                   name = aggregatorNames[o];
-                  th = createElement("th", "rowTotal", labels[name]);
+                  th = createElement("th", "rowTotal rowTotalTypeA", labels[name]);
                   results1.push(tr.appendChild(th));
                 }
                 return results1;
@@ -580,23 +581,16 @@
             };
             addHeaders(colKeyHeaders);
             if (useLookerRowTotals) {
-              ref = colKeyHeaders.children;
-              for (l = 0, len = ref.length; l < len; l++) {
-                child = ref[l];
-                if (child === LOOKER_ROW_TOTAL_KEY) {
-                  continue;
-                }
-                for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
-                  name = aggregatorNames[o];
-                  th = createElement("th", "rowTotal", labels[name]);
-                  tr.appendChild(th);
-                }
+              for (l = 0, len = aggregatorNames.length; l < len; l++) {
+                name = aggregatorNames[l];
+                th = createElement("th", "rowTotal rowTotalTypeB", labels[name]);
+                tr.appendChild(th);
               }
             }
             if (hasRowTotals && !useLookerRowTotals) {
-              for (q = 0, len2 = aggregatorNames.length; q < len2; q++) {
-                name = aggregatorNames[q];
-                th = createElement("th", "rowTotal", labels[name]);
+              for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
+                name = aggregatorNames[o];
+                th = createElement("th", "rowTotal rowTotalTypeC", labels[name]);
                 tr.appendChild(th);
               }
             }
@@ -608,9 +602,9 @@
           }
         } else {
 // No pivots, but we still need to add column headers.
-          for (r = 0, len3 = aggregatorNames.length; r < len3; r++) {
-            name = aggregatorNames[r];
-            th = createElement("th", "rowTotal", labels[name]);
+          for (q = 0, len2 = aggregatorNames.length; q < len2; q++) {
+            name = aggregatorNames[q];
+            th = createElement("th", "rowTotal rowTotalTypeD", labels[name]);
             tr.appendChild(th);
           }
         }
@@ -768,7 +762,7 @@
               name = aggregatorNames[r];
               totalAggregator = rowTotals[rh.flatKey][name];
               val = totalAggregator.value();
-              td = createElement("td", `pvtTotal rowTotal ${rCls}`, totalAggregator.format(val), {
+              td = createElement("td", `pvtTotal rowTotal rowTotalTypeX ${rCls}`, totalAggregator.format(val), {
                 "data-value": val,
                 "data-row": `row${rh.row}`,
                 "data-rowcol": `col${rh.col}`,
