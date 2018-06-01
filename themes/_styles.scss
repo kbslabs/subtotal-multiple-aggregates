@@ -10,6 +10,7 @@
     line-height: $line-height;
     color: $text-color;
     background-color: $background-color;
+    overflow: auto;
 
     table, thead, tbody, th, td {
         font-weight: 400;
