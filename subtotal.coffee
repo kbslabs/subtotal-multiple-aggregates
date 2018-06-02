@@ -499,6 +499,8 @@ callWithJQuery ($) ->
                         aggregator = tree[rh.flatKey][ch.flatKey][name] ? {value: (-> null), format: -> ""}
                         val = aggregator.value()
                         cls = " #{rCls} col#{ch.row} colcol#{ch.col} #{classColExpanded}"
+                        if ch.text is LOOKER_ROW_TOTAL_KEY
+                            cls += " pvtRowTotal"
                         if ch.children.length > 0
                             cls += " pvtColSubtotal"
                             cls += if opts.colSubtotalDisplay.hideOnExpand then " #{classColHide}" else " #{classColShow}"

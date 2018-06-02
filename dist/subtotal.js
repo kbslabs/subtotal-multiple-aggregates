@@ -741,6 +741,9 @@
                 };
                 val = aggregator.value();
                 cls = ` ${rCls} col${ch.row} colcol${ch.col} ${classColExpanded}`;
+                if (ch.text === LOOKER_ROW_TOTAL_KEY) {
+                  cls += " pvtRowTotal";
+                }
                 if (ch.children.length > 0) {
                   cls += " pvtColSubtotal";
                   cls += opts.colSubtotalDisplay.hideOnExpand ? ` ${classColHide}` : ` ${classColShow}`;
