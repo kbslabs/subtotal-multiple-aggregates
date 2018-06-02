@@ -119,7 +119,7 @@
     }
     th.pvtRowLabel {
         background: $background-color !important;
-        &.rowexpanded, .rowcollapsed {
+        &.rowexpanded, &.rowcollapsed {
             cursor: pointer;
         }
     }
