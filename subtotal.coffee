@@ -294,6 +294,8 @@ callWithJQuery ($) ->
                 ah.onClick = expandAxis
             if col == attrs.length-1 or col >= opts.disableFrom or opts.disableExpandCollapse
                 arrow = ""
+            else
+                hClass += " pvtInteractive A"
             ah.th = createElement "th", "pvtAxisLabel #{hClass}", [arrow, ah.text]
             if col < attrs.length-1 and col < opts.disableFrom and not opts.disableExpandCollapse
                 ah.th.onclick = (event) ->
@@ -327,9 +329,12 @@ callWithJQuery ($) ->
             thead.appendChild axisHeaders.tr
             return axisHeaders
 
+        shouldShowHeaderArrow = (h, attrs, opts) ->
+            return h.col == attrs.length-1 or h.col >= opts.disableFrom or opts.disableExpandCollapse or h.children.length is 0
+
         getHeaderText = (h, attrs, opts) ->
             arrow = " #{arrowExpanded} "
-            arrow = "" if h.col == attrs.length-1 or h.col >= opts.disableFrom or opts.disableExpandCollapse or h.children.length is 0
+            arrow = "" if shouldShowHeaderArrow h, attrs, opts
             label = if h.text is LOOKER_ROW_TOTAL_KEY then 'Total' else h.text
             return "#{arrow}#{label}"
 
@@ -438,6 +443,7 @@ callWithJQuery ($) ->
             # h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
             h.th.rowSpan = h.childrenSpan if h.children.length isnt 0
             h.th.textContent = getHeaderText h, rowAttrs, opts.rowSubtotalDisplay
+            addClass h.th, "pvtInteractive" if h.children.length isnt 0
 
             h.tr = createElement "tr", "row#{h.row}"
             h.tr.appendChild h.th

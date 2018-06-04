@@ -114,13 +114,13 @@
     .pvtColTotal {
         vertical-align: bottom;
     }
-    .pvtRowLabelFiller {
+    .pvtRowLabelFiller, th.pvtRowLabel {
         background: $background-color !important;
     }
-    th.pvtRowLabel {
-        background: $background-color !important;
-        &.rowexpanded, &.rowcollapsed {
-            cursor: pointer;
+    .pvtInteractive {
+        cursor: pointer;
+        &:hover {
+            color: darken($text-color, 15%);
         }
     }
 
