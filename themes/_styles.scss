@@ -105,7 +105,7 @@
     .rowTotal {
         background: $dimension-darker;
     }
-    .pvtVal.rowTotal, .pvtRowSubtotal, .pvtTotal, .pvtVal.pvtRowTotal, .pvtGrandTotal {
+    .pvtRowSubtotal, .pvtVal.pvtRowTotal, .pvtGrandTotal, .rowTotalTypeX, .colTotal {
         font-weight: 700;
     }
     .pvtVal, .pvtGrandTotal {
