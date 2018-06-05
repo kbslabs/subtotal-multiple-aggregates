@@ -214,9 +214,10 @@ callWithJQuery ($) ->
                 if Array.isArray(value)
                     append(x) for x in value
                 else if value?.label
-                    out += escapeHtml value.label
-                    if value.sublabel
-                        out += " <em>#{escapeHtml value.sublabel}</em>"
+                    if value.sublabel?
+                        out += "#{escapeHtml value.label} <em>#{escapeHtml value.sublabel}</em>"
+                    else
+                        out += "<em>#{escapeHtml value.label}</em>"
                 else if value != null and value != undefined
                     out += escapeHtml String(value)
             append parts
