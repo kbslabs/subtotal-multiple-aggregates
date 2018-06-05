@@ -58,7 +58,7 @@
             }
           });
           this.hasLookerRowTotals = flatten(this.getColKeys()).includes(LOOKER_ROW_TOTAL_KEY);
-          this.useLookerRowTotals = ((ref6 = opts.useLookerRowTotals) != null ? ref6 : true) && this.hasLookerRowTotals;
+          this.useLookerRowTotals = ((ref6 = opts.useLookerRowTotals) != null ? ref6 : false) && this.hasLookerRowTotals;
         }
 
         processRecord(record) { //this code is called in a tight loop
@@ -319,9 +319,10 @@
             }
             return results;
           } else if (value != null ? value.label : void 0) {
-            out += escapeHtml(value.label);
-            if (value.sublabel) {
-              return out += ` <em>${escapeHtml(value.sublabel)}</em>`;
+            if (value.sublabel != null) {
+              return out += `${escapeHtml(value.label)} <em>${escapeHtml(value.sublabel)}</em>`;
+            } else {
+              return out += `<em>${escapeHtml(value.label)}</em>`;
             }
           } else if (value !== null && value !== void 0) {
             return out += escapeHtml(String(value));
@@ -600,7 +601,7 @@
               }
             }
           } else {
-            th = createElement("th", "pvtColLabel pvtColTotal", 'Total*', {
+            th = createElement("th", "pvtColLabel pvtColTotal", 'Total', {
               colspan: aggregatorNames.length
             });
             tr.appendChild(th);
