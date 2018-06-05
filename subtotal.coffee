@@ -38,7 +38,7 @@ callWithJQuery ($) ->
                 @processRecord(record) if @filter(record)
 
             @hasLookerRowTotals = flatten(@getColKeys()).includes(LOOKER_ROW_TOTAL_KEY)
-            @useLookerRowTotals = (opts.useLookerRowTotals ? true) and @hasLookerRowTotals
+            @useLookerRowTotals = (opts.useLookerRowTotals ? false) and @hasLookerRowTotals
 
         processKey = (record, totals, keys, attrs, getAggregator) ->
             key = []
@@ -413,7 +413,7 @@ callWithJQuery ($) ->
                             th = createElement "th", "rowTotal rowTotalTypeC", labels[name]
                             tr.appendChild th
                 else
-                    th = createElement "th", "pvtColLabel pvtColTotal", 'Total*',
+                    th = createElement "th", "pvtColLabel pvtColTotal", 'Total',
                         colspan: aggregatorNames.length
                     tr.appendChild th
             else
