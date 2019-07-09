@@ -38,7 +38,7 @@ callWithJQuery ($) ->
                 @processRecord(record) if @filter(record)
 
             @hasLookerRowTotals = flatten(@getColKeys()).includes(LOOKER_ROW_TOTAL_KEY)
-            @useLookerRowTotals = (opts.useLookerRowTotals ? false) and @hasLookerRowTotals
+            @useLookerRowTotals = (opts.useLookerRowTotals ? true) and @hasLookerRowTotals
 
         processKey = (record, totals, keys, attrs, getAggregator) ->
             key = []
@@ -214,10 +214,9 @@ callWithJQuery ($) ->
                 if Array.isArray(value)
                     append(x) for x in value
                 else if value?.label
-                    if value.sublabel?
-                        out += "#{escapeHtml value.label} <em>#{escapeHtml value.sublabel}</em>"
-                    else
-                        out += "<em>#{escapeHtml value.label}</em>"
+                    out += escapeHtml value.label
+                    if value.sublabel
+                        out += " <em>#{escapeHtml value.sublabel}</em>"
                 else if value != null and value != undefined
                     out += escapeHtml String(value)
             append parts
@@ -295,8 +294,6 @@ callWithJQuery ($) ->
                 ah.onClick = expandAxis
             if col == attrs.length-1 or col >= opts.disableFrom or opts.disableExpandCollapse
                 arrow = ""
-            else
-                hClass += " pvtInteractive A"
             ah.th = createElement "th", "pvtAxisLabel #{hClass}", [arrow, ah.text]
             if col < attrs.length-1 and col < opts.disableFrom and not opts.disableExpandCollapse
                 ah.th.onclick = (event) ->
@@ -330,12 +327,9 @@ callWithJQuery ($) ->
             thead.appendChild axisHeaders.tr
             return axisHeaders
 
-        shouldShowHeaderArrow = (h, attrs, opts) ->
-            return h.col == attrs.length-1 or h.col >= opts.disableFrom or opts.disableExpandCollapse or h.children.length is 0
-
         getHeaderText = (h, attrs, opts) ->
             arrow = " #{arrowExpanded} "
-            arrow = "" if shouldShowHeaderArrow h, attrs, opts
+            arrow = "" if h.col == attrs.length-1 or h.col >= opts.disableFrom or opts.disableExpandCollapse or h.children.length is 0
             label = if h.text is LOOKER_ROW_TOTAL_KEY then 'Total' else h.text
             return "#{arrow}#{label}"
 
@@ -388,7 +382,6 @@ callWithJQuery ($) ->
             node.counter++
 
         buildRowTotalsHeader = (tr, colKeyHeaders, rowAttrs, colAttrs) ->
-            # The rowTotalTypeX classes are added for easier debugging.
             if colAttrs.length > 0
                 # We have pivots.
                 if colKeyHeaders
@@ -400,27 +393,29 @@ callWithJQuery ($) ->
                                 addHeaders(headers[child])
                         else
                             for name in aggregatorNames
-                                th = createElement "th", "rowTotal rowTotalTypeA", labels[name]
+                                th = createElement "th", "rowTotal", labels[name]
                                 tr.appendChild th
                     addHeaders(colKeyHeaders)
 
                     if useLookerRowTotals
-                        for name in aggregatorNames
-                            th = createElement "th", "rowTotal rowTotalTypeB", labels[name]
-                            tr.appendChild th
+                        for child in colKeyHeaders.children
+                            continue if child is LOOKER_ROW_TOTAL_KEY
+                            for name in aggregatorNames
+                                th = createElement "th", "rowTotal", labels[name]
+                                tr.appendChild th
 
                     if hasRowTotals and not useLookerRowTotals
                         for name in aggregatorNames
-                            th = createElement "th", "rowTotal rowTotalTypeC", labels[name]
+                            th = createElement "th", "rowTotal", labels[name]
                             tr.appendChild th
                 else
-                    th = createElement "th", "pvtColLabel pvtColTotal", 'Total',
+                    th = createElement "th", "pvtColLabel pvtColTotal", 'Total*',
                         colspan: aggregatorNames.length
                     tr.appendChild th
             else
                 # No pivots, but we still need to add column headers.
                 for name in aggregatorNames
-                    th = createElement "th", "rowTotal rowTotalTypeD", labels[name]
+                    th = createElement "th", "rowTotal", labels[name]
                     tr.appendChild th
             return
 
@@ -444,7 +439,6 @@ callWithJQuery ($) ->
             # h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
             h.th.rowSpan = h.childrenSpan if h.children.length isnt 0
             h.th.textContent = getHeaderText h, rowAttrs, opts.rowSubtotalDisplay
-            addClass h.th, "pvtInteractive" if h.children.length isnt 0
 
             h.tr = createElement "tr", "row#{h.row}"
             h.tr.appendChild h.th
@@ -506,8 +500,6 @@ callWithJQuery ($) ->
                         aggregator = tree[rh.flatKey][ch.flatKey][name] ? {value: (-> null), format: -> ""}
                         val = aggregator.value()
                         cls = " #{rCls} col#{ch.row} colcol#{ch.col} #{classColExpanded}"
-                        if ch.text is LOOKER_ROW_TOTAL_KEY
-                            cls += " pvtRowTotal"
                         if ch.children.length > 0
                             cls += " pvtColSubtotal"
                             cls += if opts.colSubtotalDisplay.hideOnExpand then " #{classColHide}" else " #{classColShow}"
@@ -525,7 +517,7 @@ callWithJQuery ($) ->
                     for name in aggregatorNames
                         totalAggregator = rowTotals[rh.flatKey][name]
                         val = totalAggregator.value()
-                        td = createElement "td", "pvtTotal rowTotal rowTotalTypeX #{rCls}", totalAggregator.format(val),
+                        td = createElement "td", "pvtTotal rowTotal #{rCls}", totalAggregator.format(val),
                             "data-value": val
                             "data-row": "row#{rh.row}"
                             "data-rowcol": "col#{rh.col}"

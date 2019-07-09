@@ -58,7 +58,7 @@
             }
           });
           this.hasLookerRowTotals = flatten(this.getColKeys()).includes(LOOKER_ROW_TOTAL_KEY);
-          this.useLookerRowTotals = ((ref6 = opts.useLookerRowTotals) != null ? ref6 : false) && this.hasLookerRowTotals;
+          this.useLookerRowTotals = ((ref6 = opts.useLookerRowTotals) != null ? ref6 : true) && this.hasLookerRowTotals;
         }
 
         processRecord(record) { //this code is called in a tight loop
@@ -189,7 +189,7 @@
     }).call(this);
     $.pivotUtilities.SubtotalPivotDataMulti = SubtotalPivotDataMulti;
     SubtotalRenderer = function(pivotData, opts) {
-      var addClass, adjustAxisHeader, aggregatorNames, aggregators, allTotal, arrowCollapsed, arrowExpanded, buildAxisHeader, buildColAxisHeaders, buildColHeader, buildColTotals, buildColTotalsHeader, buildGrandTotal, buildRowAxisHeaders, buildRowHeader, buildRowTotalsHeader, buildValues, classColCollapsed, classColExpanded, classColHide, classColShow, classCollapsed, classExpanded, classRowCollapsed, classRowExpanded, classRowHide, classRowShow, clickStatusCollapsed, clickStatusExpanded, colAttrs, colKeys, colTotals, collapseAxis, collapseAxisHeaders, collapseChildCol, collapseChildRow, collapseCol, collapseHiddenColSubtotal, collapseRow, collapseShowColSubtotal, collapseShowRowSubtotal, createElement, defaults, escapeHtml, expandAxis, expandChildCol, expandChildRow, expandCol, expandHideColSubtotal, expandHideRowSubtotal, expandRow, expandShowColSubtotal, expandShowRowSubtotal, getHeaderText, getTableEventHandlers, hasClass, hasColTotals, hasLookerRowTotals, hasRowTotals, hideChildCol, hideChildRow, labels, lastPivotHeader, main, parseLabel, processKeys, removeClass, replaceClass, rowAttrs, rowKeys, rowTotals, setAttributes, shouldShowHeaderArrow, showChildCol, showChildRow, tree, useLookerRowTotals;
+      var addClass, adjustAxisHeader, aggregatorNames, aggregators, allTotal, arrowCollapsed, arrowExpanded, buildAxisHeader, buildColAxisHeaders, buildColHeader, buildColTotals, buildColTotalsHeader, buildGrandTotal, buildRowAxisHeaders, buildRowHeader, buildRowTotalsHeader, buildValues, classColCollapsed, classColExpanded, classColHide, classColShow, classCollapsed, classExpanded, classRowCollapsed, classRowExpanded, classRowHide, classRowShow, clickStatusCollapsed, clickStatusExpanded, colAttrs, colKeys, colTotals, collapseAxis, collapseAxisHeaders, collapseChildCol, collapseChildRow, collapseCol, collapseHiddenColSubtotal, collapseRow, collapseShowColSubtotal, collapseShowRowSubtotal, createElement, defaults, escapeHtml, expandAxis, expandChildCol, expandChildRow, expandCol, expandHideColSubtotal, expandHideRowSubtotal, expandRow, expandShowColSubtotal, expandShowRowSubtotal, getHeaderText, getTableEventHandlers, hasClass, hasColTotals, hasLookerRowTotals, hasRowTotals, hideChildCol, hideChildRow, labels, lastPivotHeader, main, parseLabel, processKeys, removeClass, replaceClass, rowAttrs, rowKeys, rowTotals, setAttributes, showChildCol, showChildRow, tree, useLookerRowTotals;
       defaults = {
         table: {
           clickCallback: null
@@ -319,10 +319,9 @@
             }
             return results;
           } else if (value != null ? value.label : void 0) {
-            if (value.sublabel != null) {
-              return out += `${escapeHtml(value.label)} <em>${escapeHtml(value.sublabel)}</em>`;
-            } else {
-              return out += `<em>${escapeHtml(value.label)}</em>`;
+            out += escapeHtml(value.label);
+            if (value.sublabel) {
+              return out += ` <em>${escapeHtml(value.sublabel)}</em>`;
             }
           } else if (value !== null && value !== void 0) {
             return out += escapeHtml(String(value));
@@ -439,8 +438,6 @@
         }
         if (col === attrs.length - 1 || col >= opts.disableFrom || opts.disableExpandCollapse) {
           arrow = "";
-        } else {
-          hClass += " pvtInteractive A";
         }
         ah.th = createElement("th", `pvtAxisLabel ${hClass}`, [arrow, ah.text]);
         if (col < attrs.length - 1 && col < opts.disableFrom && !opts.disableExpandCollapse) {
@@ -484,13 +481,10 @@
         thead.appendChild(axisHeaders.tr);
         return axisHeaders;
       };
-      shouldShowHeaderArrow = function(h, attrs, opts) {
-        return h.col === attrs.length - 1 || h.col >= opts.disableFrom || opts.disableExpandCollapse || h.children.length === 0;
-      };
       getHeaderText = function(h, attrs, opts) {
         var arrow, label;
         arrow = ` ${arrowExpanded} `;
-        if (shouldShowHeaderArrow(h, attrs, opts)) {
+        if (h.col === attrs.length - 1 || h.col >= opts.disableFrom || opts.disableExpandCollapse || h.children.length === 0) {
           arrow = "";
         }
         label = h.text === LOOKER_ROW_TOTAL_KEY ? 'Total' : h.text;
@@ -557,8 +551,7 @@
         return node.counter++;
       };
       buildRowTotalsHeader = function(tr, colKeyHeaders, rowAttrs, colAttrs) {
-        var addHeaders, l, len, len1, len2, name, o, q, th;
-        // The rowTotalTypeX classes are added for easier debugging.
+        var addHeaders, child, l, len, len1, len2, len3, name, o, q, r, ref, th;
         if (colAttrs.length > 0) {
           // We have pivots.
           if (colKeyHeaders) {
@@ -579,7 +572,7 @@
                 results1 = [];
                 for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
                   name = aggregatorNames[o];
-                  th = createElement("th", "rowTotal rowTotalTypeA", labels[name]);
+                  th = createElement("th", "rowTotal", labels[name]);
                   results1.push(tr.appendChild(th));
                 }
                 return results1;
@@ -587,30 +580,37 @@
             };
             addHeaders(colKeyHeaders);
             if (useLookerRowTotals) {
-              for (l = 0, len = aggregatorNames.length; l < len; l++) {
-                name = aggregatorNames[l];
-                th = createElement("th", "rowTotal rowTotalTypeB", labels[name]);
-                tr.appendChild(th);
+              ref = colKeyHeaders.children;
+              for (l = 0, len = ref.length; l < len; l++) {
+                child = ref[l];
+                if (child === LOOKER_ROW_TOTAL_KEY) {
+                  continue;
+                }
+                for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
+                  name = aggregatorNames[o];
+                  th = createElement("th", "rowTotal", labels[name]);
+                  tr.appendChild(th);
+                }
               }
             }
             if (hasRowTotals && !useLookerRowTotals) {
-              for (o = 0, len1 = aggregatorNames.length; o < len1; o++) {
-                name = aggregatorNames[o];
-                th = createElement("th", "rowTotal rowTotalTypeC", labels[name]);
+              for (q = 0, len2 = aggregatorNames.length; q < len2; q++) {
+                name = aggregatorNames[q];
+                th = createElement("th", "rowTotal", labels[name]);
                 tr.appendChild(th);
               }
             }
           } else {
-            th = createElement("th", "pvtColLabel pvtColTotal", 'Total', {
+            th = createElement("th", "pvtColLabel pvtColTotal", 'Total*', {
               colspan: aggregatorNames.length
             });
             tr.appendChild(th);
           }
         } else {
 // No pivots, but we still need to add column headers.
-          for (q = 0, len2 = aggregatorNames.length; q < len2; q++) {
-            name = aggregatorNames[q];
-            th = createElement("th", "rowTotal rowTotalTypeD", labels[name]);
+          for (r = 0, len3 = aggregatorNames.length; r < len3; r++) {
+            name = aggregatorNames[r];
+            th = createElement("th", "rowTotal", labels[name]);
             tr.appendChild(th);
           }
         }
@@ -643,9 +643,6 @@
           h.th.rowSpan = h.childrenSpan;
         }
         h.th.textContent = getHeaderText(h, rowAttrs, opts.rowSubtotalDisplay);
-        if (h.children.length !== 0) {
-          addClass(h.th, "pvtInteractive");
-        }
         h.tr = createElement("tr", `row${h.row}`);
         h.tr.appendChild(h.th);
         if (h.children.length === 0) {
@@ -750,9 +747,6 @@
                 };
                 val = aggregator.value();
                 cls = ` ${rCls} col${ch.row} colcol${ch.col} ${classColExpanded}`;
-                if (ch.text === LOOKER_ROW_TOTAL_KEY) {
-                  cls += " pvtRowTotal";
-                }
                 if (ch.children.length > 0) {
                   cls += " pvtColSubtotal";
                   cls += opts.colSubtotalDisplay.hideOnExpand ? ` ${classColHide}` : ` ${classColShow}`;
@@ -774,7 +768,7 @@
               name = aggregatorNames[r];
               totalAggregator = rowTotals[rh.flatKey][name];
               val = totalAggregator.value();
-              td = createElement("td", `pvtTotal rowTotal rowTotalTypeX ${rCls}`, totalAggregator.format(val), {
+              td = createElement("td", `pvtTotal rowTotal ${rCls}`, totalAggregator.format(val), {
                 "data-value": val,
                 "data-row": `row${rh.row}`,
                 "data-rowcol": `col${rh.col}`,
