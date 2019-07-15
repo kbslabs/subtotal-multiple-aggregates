@@ -507,7 +507,7 @@
         h.th.setAttribute("data-colnode", h.node);
         h.th.colSpan = h.children.length ? h.childrenSpan : aggregatorNames.length;
         //h.th.rowSpan = 2 if h.children.length is 0 and rowAttrs.length isnt 0
-        h.th.textContent = getHeaderText(h, colAttrs, opts.colSubtotalDisplay);
+        h.th.innerHTML = getHeaderText(h, colAttrs, opts.colSubtotalDisplay);
         if (h.children.length !== 0 && h.col < opts.colSubtotalDisplay.disableFrom) {
           ah.expandables++;
           ah.expandedCount += 1;
@@ -642,7 +642,7 @@
           // h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
           h.th.rowSpan = h.childrenSpan;
         }
-        h.th.textContent = getHeaderText(h, rowAttrs, opts.rowSubtotalDisplay);
+        h.th.innerHTML = getHeaderText(h, rowAttrs, opts.rowSubtotalDisplay);
         h.tr = createElement("tr", `row${h.row}`);
         h.tr.appendChild(h.th);
         if (h.children.length === 0) {
@@ -865,14 +865,14 @@
       collapseHiddenColSubtotal = function(h, opts) {
         $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(classColExpanded).addClass(classColCollapsed);
         if (h.children.length !== 0) {
-          h.th.textContent = ` ${arrowCollapsed} ${h.text}`;
+          h.th.innerHTML = ` ${arrowCollapsed} ${h.text}`;
         }
         return h.th.colSpan = 1;
       };
       collapseShowColSubtotal = function(h, opts) {
         $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(classColExpanded).addClass(classColCollapsed).removeClass(classColHide).addClass(classColShow);
         if (h.children.length !== 0) {
-          h.th.textContent = ` ${arrowCollapsed} ${h.text}`;
+          h.th.innerHTML = ` ${arrowCollapsed} ${h.text}`;
         }
         return h.th.colSpan = 1;
       };
@@ -920,12 +920,12 @@
       expandHideColSubtotal = function(h) {
         $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(`${classColCollapsed} ${classColShow}`).addClass(`${classColExpanded} ${classColHide}`);
         replaceClass(h.th, classColHide, classColShow);
-        return h.th.textContent = ` ${arrowExpanded} ${h.text}`;
+        return h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
       };
       expandShowColSubtotal = function(h) {
         $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(`${classColCollapsed} ${classColHide}`).addClass(`${classColExpanded} ${classColShow}`);
         h.th.colSpan++;
-        return h.th.textContent = ` ${arrowExpanded} ${h.text}`;
+        return h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
       };
       expandChildCol = function(ch, opts) {
         var chKey, l, len, ref, results;
@@ -999,7 +999,7 @@
       };
       collapseShowRowSubtotal = function(h, opts) {
         var cell, l, len, len1, o, ref, ref1, results;
-        h.th.textContent = ` ${arrowCollapsed} ${h.text}`;
+        h.th.innerHTML = ` ${arrowCollapsed} ${h.text}`;
         ref = h.tr.querySelectorAll("th, td");
         for (l = 0, len = ref.length; l < len; l++) {
           cell = ref[l];
@@ -1058,7 +1058,7 @@
       };
       expandShowRowSubtotal = function(h, opts) {
         var cell, l, len, len1, o, ref, ref1, results;
-        h.th.textContent = ` ${arrowExpanded} ${h.text}`;
+        h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
         ref = h.tr.querySelectorAll("th, td");
         for (l = 0, len = ref.length; l < len; l++) {
           cell = ref[l];
@@ -1078,7 +1078,7 @@
       };
       expandHideRowSubtotal = function(h, opts) {
         var cell, l, len, len1, o, ref, ref1, results;
-        h.th.textContent = ` ${arrowExpanded} ${h.text}`;
+        h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
         ref = h.tr.querySelectorAll("th, td");
         for (l = 0, len = ref.length; l < len; l++) {
           cell = ref[l];

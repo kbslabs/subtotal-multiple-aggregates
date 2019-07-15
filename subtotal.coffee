@@ -347,7 +347,7 @@ callWithJQuery ($) ->
             h.th.setAttribute "data-colnode", h.node
             h.th.colSpan = if h.children.length then h.childrenSpan else aggregatorNames.length
             #h.th.rowSpan = 2 if h.children.length is 0 and rowAttrs.length isnt 0
-            h.th.textContent = getHeaderText h, colAttrs, opts.colSubtotalDisplay
+            h.th.innerHTML = getHeaderText h, colAttrs, opts.colSubtotalDisplay
             if h.children.length isnt 0 and h.col < opts.colSubtotalDisplay.disableFrom
                     ah.expandables++
                     ah.expandedCount += 1
@@ -438,7 +438,7 @@ callWithJQuery ($) ->
             h.th.setAttribute "data-rownode", h.node
             # h.th.colSpan = 2 if h.col is rowAttrs.length-1 and colAttrs.length isnt 0
             h.th.rowSpan = h.childrenSpan if h.children.length isnt 0
-            h.th.textContent = getHeaderText h, rowAttrs, opts.rowSubtotalDisplay
+            h.th.innerHTML = getHeaderText h, rowAttrs, opts.rowSubtotalDisplay
 
             h.tr = createElement "tr", "row#{h.row}"
             h.tr.appendChild h.th
@@ -593,7 +593,7 @@ callWithJQuery ($) ->
                 .find "tbody tr td[data-colnode=\"#{h.node}\"], th[data-colnode=\"#{h.node}\"]"
                 .removeClass classColExpanded
                 .addClass classColCollapsed
-            h.th.textContent = " #{arrowCollapsed} #{h.text}" if h.children.length isnt 0
+            h.th.innerHTML = " #{arrowCollapsed} #{h.text}" if h.children.length isnt 0
             h.th.colSpan = 1
 
         collapseShowColSubtotal = (h, opts) ->
@@ -603,7 +603,7 @@ callWithJQuery ($) ->
                 .addClass classColCollapsed
                 .removeClass classColHide
                 .addClass classColShow
-            h.th.textContent = " #{arrowCollapsed} #{h.text}" if h.children.length isnt 0
+            h.th.innerHTML = " #{arrowCollapsed} #{h.text}" if h.children.length isnt 0
             h.th.colSpan = 1
 
         collapseChildCol = (ch, h) ->
@@ -639,7 +639,7 @@ callWithJQuery ($) ->
                 .removeClass "#{classColCollapsed} #{classColShow}"
                 .addClass "#{classColExpanded} #{classColHide}"
             replaceClass h.th, classColHide, classColShow
-            h.th.textContent = " #{arrowExpanded} #{h.text}"
+            h.th.innerHTML = " #{arrowExpanded} #{h.text}"
 
         expandShowColSubtotal = (h) ->
             $(h.th).closest 'table.pvtTable'
@@ -647,7 +647,7 @@ callWithJQuery ($) ->
                 .removeClass "#{classColCollapsed} #{classColHide}"
                 .addClass "#{classColExpanded} #{classColShow}"
             h.th.colSpan++
-            h.th.textContent = " #{arrowExpanded} #{h.text}"
+            h.th.innerHTML = " #{arrowExpanded} #{h.text}"
 
         expandChildCol = (ch, opts) ->
             if ch.children.length isnt 0 and opts.hideOnExpand and ch.clickStatus is clickStatusExpanded
@@ -689,7 +689,7 @@ callWithJQuery ($) ->
             replaceClass cell, classRowShow, classRowHide for cell in ch.sTr.querySelectorAll "th, td" if ch.sTr
 
         collapseShowRowSubtotal = (h, opts) ->
-            h.th.textContent = " #{arrowCollapsed} #{h.text}"
+            h.th.innerHTML = " #{arrowCollapsed} #{h.text}"
             for cell in h.tr.querySelectorAll "th, td"
                 removeClass cell, "#{classRowExpanded} #{classRowHide}"
                 addClass cell, "#{classRowCollapsed} #{classRowShow}"
@@ -715,7 +715,7 @@ callWithJQuery ($) ->
             replaceClass cell, classRowHide, classRowShow for cell in ch.sTr.querySelectorAll "th, td" if ch.sTr
 
         expandShowRowSubtotal = (h, opts) ->
-            h.th.textContent = " #{arrowExpanded} #{h.text}"
+            h.th.innerHTML = " #{arrowExpanded} #{h.text}"
             for cell in h.tr.querySelectorAll "th, td"
                 removeClass cell, "#{classRowCollapsed} #{classRowHide}"
                 addClass cell, "#{classRowExpanded} #{classRowShow}"
@@ -725,7 +725,7 @@ callWithJQuery ($) ->
                     addClass cell, "#{classRowExpanded} #{classRowShow}"
 
         expandHideRowSubtotal = (h, opts) ->
-            h.th.textContent = " #{arrowExpanded} #{h.text}"
+            h.th.innerHTML = " #{arrowExpanded} #{h.text}"
             for cell in h.tr.querySelectorAll "th, td"
                 removeClass cell, "#{classRowCollapsed} #{classRowShow}"
                 addClass cell, "#{classRowExpanded} #{classRowHide}"
