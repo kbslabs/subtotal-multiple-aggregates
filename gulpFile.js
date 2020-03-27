@@ -89,7 +89,7 @@ gulp.task('bumpMinor', function() { return inc('minor'); })
 gulp.task('bumpMajor', function() { return inc('major'); })
 
 gulp.task('patch', function() {
-    runSequence('bumpPatch', 'default', 'tag', 'publish', 'push');
+    runSequence('bumpPatch', 'default', 'tag', 'publish');
 });
 gulp.task('minor', function() {
     runSequence('bumpMinor', 'default', 'tag', 'publish', 'push');
