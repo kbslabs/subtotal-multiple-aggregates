@@ -1,19 +1,16 @@
-(function() {
-  var callWithJQuery, flatten,
-    hasProp = {}.hasOwnProperty;
+import flatten from 'array-flatten';
 
-  flatten = require('array-flatten');
-
-  callWithJQuery = function(pivotModule) {
-    if (typeof exports === "object" && typeof module === "object") { // CommonJS
-      return module.exports = pivotModule;
-    } else if (typeof define === "function" && define.amd) { // AMD
-      return define(["jquery"], pivotModule);
-    } else {
-      // Plain browser env
-      return pivotModule(jQuery);
-    }
-  };
+let hasProp = {}.hasOwnProperty;
+let callWithJQuery = function(pivotModule) {
+  if (typeof exports === "object" && typeof module === "object") { // CommonJS
+    return module.exports = pivotModule;
+  } else if (typeof define === "function" && define.amd) { // AMD
+    return define(["jquery"], pivotModule);
+  } else {
+    // Plain browser env
+    return pivotModule(jQuery);
+  }
+};
 
   callWithJQuery(function($) {
     var LOOKER_ROW_TOTAL_KEY, SubtotalPivotDataMulti, SubtotalRenderer, aggregatorTemplates, subtotalAggregatorTemplates, usFmtPct;
@@ -737,7 +734,8 @@
             if (ch.col === colAttrs.length - 1 || (ch.children.length !== 0 && ch.col < opts.colSubtotalDisplay.disableFrom)) {
               for (q = 0, len2 = aggregatorNames.length; q < len2; q++) {
                 name = aggregatorNames[q];
-                aggregator = (ref = tree[rh.flatKey][ch.flatKey][name]) != null ? ref : {
+                let reference = tree[rh.flatKey][ch.flatKey] && tree[rh.flatKey][ch.flatKey][name];
+                aggregator = reference ? reference : {
                   value: (function() {
                     return null;
                   }),
@@ -860,17 +858,17 @@
         }
       };
       hideChildCol = function(ch) {
-        return $(ch.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${ch.node}"], th[data-colnode="${ch.node}"]`).removeClass(classColShow).addClass(classColHide);
+        return $(ch.th).closest('table.pvtTable').find(`tbody tr td[data-colnode=\"${ch.node}\"], th[data-colnode=\"${ch.node}\"]`).removeClass(classColShow).addClass(classColHide);
       };
       collapseHiddenColSubtotal = function(h, opts) {
-        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(classColExpanded).addClass(classColCollapsed);
+        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode=\"${h.node}\"], th[data-colnode=\"${h.node}\"]`).removeClass(classColExpanded).addClass(classColCollapsed);
         if (h.children.length !== 0) {
           h.th.innerHTML = ` ${arrowCollapsed} ${h.text}`;
         }
         return h.th.colSpan = 1;
       };
       collapseShowColSubtotal = function(h, opts) {
-        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(classColExpanded).addClass(classColCollapsed).removeClass(classColHide).addClass(classColShow);
+        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode=\"${h.node}\"], th[data-colnode=\"${h.node}\"]`).removeClass(classColExpanded).addClass(classColCollapsed).removeClass(classColHide).addClass(classColShow);
         if (h.children.length !== 0) {
           h.th.innerHTML = ` ${arrowCollapsed} ${h.text}`;
         }
@@ -915,15 +913,15 @@
         return adjustAxisHeader(axisHeaders, h.col, opts);
       };
       showChildCol = function(ch) {
-        return $(ch.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${ch.node}"], th[data-colnode="${ch.node}"]`).removeClass(classColHide).addClass(classColShow);
+        return $(ch.th).closest('table.pvtTable').find(`tbody tr td[data-colnode=\"${ch.node}\"], th[data-colnode=\"${ch.node}\"]`).removeClass(classColHide).addClass(classColShow);
       };
       expandHideColSubtotal = function(h) {
-        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(`${classColCollapsed} ${classColShow}`).addClass(`${classColExpanded} ${classColHide}`);
+        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode=\"${h.node}\"], th[data-colnode=\"${h.node}\"]`).removeClass(`${classColCollapsed} ${classColShow}`).addClass(`${classColExpanded} ${classColHide}`);
         replaceClass(h.th, classColHide, classColShow);
         return h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
       };
       expandShowColSubtotal = function(h) {
-        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode="${h.node}"], th[data-colnode="${h.node}"]`).removeClass(`${classColCollapsed} ${classColHide}`).addClass(`${classColExpanded} ${classColShow}`);
+        $(h.th).closest('table.pvtTable').find(`tbody tr td[data-colnode=\"${h.node}\"], th[data-colnode=\"${h.node}\"]`).removeClass(`${classColCollapsed} ${classColHide}`).addClass(`${classColExpanded} ${classColShow}`);
         h.th.colSpan++;
         return h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
       };
@@ -1335,7 +1333,3 @@
       };
     })(aggregatorTemplates, subtotalAggregatorTemplates);
   });
-
-}).call(this);
-
-//# sourceMappingURL=subtotal.js.map

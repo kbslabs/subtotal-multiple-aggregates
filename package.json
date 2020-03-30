@@ -2,11 +2,12 @@
   "name": "@kbs/subtotal-multiple-aggregates",
   "version": "1.11.6",
   "description": "Subtotal.js is a JavaScript plugin for PivotTable.js. It renders subtotals of rows and columns with the ability to expand and collapse rows.",
-  "main": "dist/subtotal.js",
+  "main": "src/subtotal.js",
   "scripts": {
-    "build": "gulp",
-    "watch": "gulp watch",
-    "deploy": "gulp patch"
+    "build": "npm ci && webpack",
+    "build-dev": "webpack --mode development",
+    "start:dev": "webpack-dev-server",
+    "deploy": "npm version patch --message \"Deployment version %s [skip ci]\" && npm publish"
   },
   "keywords": [
     "pivot",
@@ -30,22 +31,15 @@
     "pivottable": ">=2.7.0"
   },
   "devDependencies": {
-    "gulp": "^3.8.10",
-    "gulp-bump": "^3.1.1",
-    "gulp-clean-css": "^3.9.0",
-    "gulp-coffee": "^3.0.2",
-    "gulp-concat": "^2.4.2",
-    "gulp-debug": "^4.0.0",
-    "gulp-filter": "^5.1.0",
-    "gulp-git": "^2.6.0",
-    "gulp-minify-css": "^1.2.4",
-    "gulp-rename": "^1.2.0",
-    "gulp-sass": "^4.0.1",
-    "gulp-serve": "^1.2.0",
-    "gulp-sourcemaps": "^2.6.4",
-    "gulp-tag-version": "^1.2.1",
-    "gulp-uglify": "^3.0.0",
-    "gulp-util": "^3.0.1",
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.5",
+    "babel-preset-es2015": "^6.24.1",
+    "jsdom": "^11.11.0",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1",
     "run-sequence": "^2.2.1"
   }
 }

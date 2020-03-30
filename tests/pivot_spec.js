@@ -380,7 +380,15 @@
       });
       describe("with jQuery table element input", function() {
         var pd, tableInput;
-        tableInput = $("<table>\n    <thead> \n        <tr> <th>a</th><th>b</th> </tr>\n    </thead> \n    <tbody>\n        <tr> <td>1</td> <td>2</td> </tr>\n        <tr> <td>3</td> <td>4</td> </tr>\n    </tbody>\n</table>");
+        tableInput = $(`<table>
+    <thead> 
+        <tr> <th>a</th><th>b</th> </tr>
+    </thead> 
+    <tbody>
+        <tr> <td>1</td> <td>2</td> </tr>
+        <tr> <td>3</td> <td>4</td> </tr>
+    </tbody>
+</table>`);
         pd = new $.pivotUtilities.SubtotalPivotData(tableInput, sumOverSumOpts);
         return it("has the correct grand total value", function() {
           return expect(pd.getAggregator([], []).value()).toBe((1 + 3) / (2 + 4));
@@ -539,5 +547,3 @@
 }).call(this);
 
 //# sourceMappingURL=pivot_spec.js.map
-
-//# sourceMappingURL=pivot_spec.min.js.map
