@@ -186,7 +186,7 @@ let callWithJQuery = function(pivotModule) {
     }).call(this);
     $.pivotUtilities.SubtotalPivotDataMulti = SubtotalPivotDataMulti;
     SubtotalRenderer = function(pivotData, opts) {
-      var addClass, adjustAxisHeader, aggregatorNames, aggregators, allTotal, arrowCollapsed, arrowExpanded, buildAxisHeader, buildColAxisHeaders, buildColHeader, buildColTotals, buildColTotalsHeader, buildGrandTotal, buildRowAxisHeaders, buildRowHeader, buildRowTotalsHeader, buildValues, classColCollapsed, classColExpanded, classColHide, classColShow, classCollapsed, classExpanded, classRowCollapsed, classRowExpanded, classRowHide, classRowShow, clickStatusCollapsed, clickStatusExpanded, colAttrs, colKeys, colTotals, collapseAxis, collapseAxisHeaders, collapseChildCol, collapseChildRow, collapseCol, collapseHiddenColSubtotal, collapseRow, collapseShowColSubtotal, collapseShowRowSubtotal, createElement, defaults, escapeHtml, expandAxis, expandChildCol, expandChildRow, expandCol, expandHideColSubtotal, expandHideRowSubtotal, expandRow, expandShowColSubtotal, expandShowRowSubtotal, getHeaderText, getTableEventHandlers, hasClass, hasColTotals, hasLookerRowTotals, hasRowTotals, hideChildCol, hideChildRow, labels, lastPivotHeader, main, parseLabel, processKeys, removeClass, replaceClass, rowAttrs, rowKeys, rowTotals, setAttributes, showChildCol, showChildRow, tree, useLookerRowTotals;
+      var childNumberToCollapse, addClass, adjustAxisHeader, aggregatorNames, aggregators, allTotal, arrowCollapsed, arrowExpanded, buildAxisHeader, buildColAxisHeaders, buildColHeader, buildColTotals, buildColTotalsHeader, buildGrandTotal, buildRowAxisHeaders, buildRowHeader, buildRowTotalsHeader, buildValues, classColCollapsed, classColExpanded, classColHide, classColShow, classCollapsed, classExpanded, classRowCollapsed, classRowExpanded, classRowHide, classRowShow, clickStatusCollapsed, clickStatusExpanded, colAttrs, colKeys, colTotals, collapseAxis, collapseAxisHeaders, collapseChildCol, collapseChildRow, collapseCol, collapseHiddenColSubtotal, collapseRow, collapseShowColSubtotal, collapseShowRowSubtotal, createElement, defaults, escapeHtml, expandAxis, expandChildCol, expandChildRow, expandCol, expandHideColSubtotal, expandHideRowSubtotal, expandRow, expandShowColSubtotal, expandShowRowSubtotal, getHeaderText, getTableEventHandlers, hasClass, hasColTotals, hasLookerRowTotals, hasRowTotals, hideChildCol, hideChildRow, labels, lastPivotHeader, main, parseLabel, processKeys, removeClass, replaceClass, rowAttrs, rowKeys, rowTotals, setAttributes, showChildCol, showChildRow, tree, useLookerRowTotals;
       defaults = {
         table: {
           clickCallback: null
@@ -263,6 +263,7 @@ let callWithJQuery = function(pivotModule) {
       classColCollapsed = "colcollapsed";
       arrowExpanded = opts.arrowExpanded;
       arrowCollapsed = opts.arrowCollapsed;
+      childNumberToCollapse = 1;
       // Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- Begin
       hasClass = function(element, className) {
         var regExp;
@@ -1022,6 +1023,10 @@ let callWithJQuery = function(pivotModule) {
           chKey = ref[l];
           collapseChildRow(ch[chKey], h, opts);
         }
+        if(childNumberToCollapse && ch.descendants === childNumberToCollapse && ch.clickStatus === clickStatusExpanded) {
+          ch.originalText = ch.text;
+          ch.text = ch.text + ' -> ' +ref[0];
+        }
         return hideChildRow(ch, opts);
       };
       collapseRow = function(axisHeaders, h, opts) {
@@ -1030,6 +1035,10 @@ let callWithJQuery = function(pivotModule) {
         for (l = 0, len = ref.length; l < len; l++) {
           chKey = ref[l];
           collapseChildRow(h[chKey], h, opts);
+        }
+        if(childNumberToCollapse && h.descendants === childNumberToCollapse) {
+          h.originalText = h.text;
+          h.text = h.text + ' -> ' + h[ref[0]].text;
         }
         collapseShowRowSubtotal(h, opts);
         h.clickStatus = clickStatusCollapsed;
@@ -1098,6 +1107,9 @@ let callWithJQuery = function(pivotModule) {
       };
       expandChildRow = function(ch, opts) {
         var chKey, l, len, ref, results;
+        if(childNumberToCollapse && ch.descendants === childNumberToCollapse) {
+          ch.text = ch.originalText;
+        }
         if (ch.children.length !== 0 && opts.hideOnExpand && ch.clickStatus === clickStatusExpanded) {
           replaceClass(ch.th, classRowHide, classRowShow);
         } else {
@@ -1118,6 +1130,9 @@ let callWithJQuery = function(pivotModule) {
       };
       expandRow = function(axisHeaders, h, opts) {
         var ch, chKey, l, len, ref;
+        if( childNumberToCollapse && h.descendants === childNumberToCollapse) {
+          h.text = h.originalText;
+        }
         if (h.clickStatus === clickStatusExpanded) {
           adjustAxisHeader(axisHeaders, h.col, opts);
           return;
