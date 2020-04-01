@@ -1,0 +1,127 @@
+@import "https://fonts.googleapis.com/css?family=Open+Sans:400,700";
+* {
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.53846;
+  color: #333;
+  background-color: #fff;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+table,
+thead,
+tbody,
+th,
+td {
+  font-weight: 400;
+  text-align: left;
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+table thead tr:first-child th:first-child {
+  border-top-left-radius: 2px;
+}
+table thead tr:first-child th:last-child {
+  border-top-right-radius: 2px;
+}
+table tbody tr:last-child td:first-child,
+table tbody tr:last-child th:first-child {
+  border-bottom-left-radius: 2px;
+}
+table tbody tr:last-child td:last-child,
+table tbody tr:last-child th:last-child {
+  border-bottom-right-radius: 2px;
+}
+th,
+td {
+  padding: 2px 4px;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+}
+th:last-child,
+td:last-child {
+  border-right: none;
+}
+tr:last-child th,
+tr:last-child td {
+  border-bottom: none;
+}
+td {
+  vertical-align: middle;
+}
+th {
+  vertical-align: top;
+  white-space: nowrap;
+  user-select: none;
+}
+th em {
+  font-style: normal;
+  font-weight: 700;
+}
+tr.pvtColAxisHeaders td,
+tr.pvtColAxisHeaders th {
+  background: #fff;
+}
+tr.pvtColAxisHeaders:nth-child(2) td,
+tr.pvtColAxisHeaders:nth-child(2) th {
+  background: #fff;
+}
+tbody tr:nth-child(odd) th {
+  background: #fff;
+}
+tbody tr:nth-child(odd) td {
+  background: #fff;
+}
+tbody tr:nth-child(even) th {
+  background: #f3f3f3;
+}
+tbody tr:nth-child(even) td {
+  background: #f3f3f3;
+}
+.pvtRowAxisHeaders .pvtAxisLabel {
+  background: #fff;
+}
+.pvtColAxisHeaders .pvtAxisLabel {
+  text-align: right;
+  padding-right: 1em;
+}
+.rowTotal {
+  background: #fff;
+}
+.pvtVal,
+.pvtGrandTotal {
+  text-align: right;
+}
+.pvtColTotal {
+  vertical-align: bottom;
+}
+.pvtRowLabelFiller {
+  background: #fff !important;
+  border-bottom: none;
+}
+th.pvtRowLabel {
+  background: #fff !important;
+}
+th.pvtRowLabel.rowexpanded,
+th.pvtRowLabel .rowcollapsed {
+  cursor: pointer;
+}
+.pvtRowSubtotal {
+  font-weight: 700;
+}
+.rowhide,
+.colhide {
+  display: none;
+}
+.pvtRowTotal th,
+.pvtRowTotal td,
+.pvtColTotal {
+  font-weight: 700;
+}
