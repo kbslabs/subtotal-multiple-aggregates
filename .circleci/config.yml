@@ -30,9 +30,6 @@ jobs:
           name: For your npm command line client to work with Artifactory, you first need to set the default npm registry with an Artifactory npm repository
           command: npm config set registry https://kbsforce.jfrog.io/kbsforce/api/npm/npm/
       - run:
-          name: Install dependencies
-          command: npm ci
-      - run:
           name: Configure git to commit and push the tag.
           command: git config --global user.email $GIT_USER_EMAIL && git config --global user.name $GIT_USER_NAME && git branch -u origin/$CIRCLE_BRANCH
       - deploy:
