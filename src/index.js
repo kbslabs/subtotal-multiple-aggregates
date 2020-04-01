@@ -317,6 +317,7 @@ callWithJQuery(function($) {
       collapseAxisHeaders,
       collapseChildCol,
       collapseChildRow,
+      collapseChildRows,
       collapseCol,
       collapseHiddenColSubtotal,
       collapseRow,
@@ -1457,13 +1458,14 @@ callWithJQuery(function($) {
         chKey = ref[l];
         collapseChildRow(ch[chKey], h, opts);
       }
-      if (
-        childNumberToCollapse &&
-        ch.descendants === childNumberToCollapse &&
-        ch.clickStatus === clickStatusExpanded
-      ) {
-        ch.originalText = ch.text;
-        ch.text = ch.text + " -> " + ref[0];
+      if (childNumberToCollapse && childNumberToCollapse === h.descendants)  {
+        if (ch.parent === h) {
+          let newCell = ch.parent.tr.cells[1];
+          newCell.innerHTML = ch.text;
+        } else {
+          let newCell = h.tr.cells[ch.col - h.col];
+          newCell.innerHTML = ch.text;
+        }
       }
       return hideChildRow(ch, opts);
     };
@@ -1473,10 +1475,6 @@ callWithJQuery(function($) {
       for (l = 0, len = ref.length; l < len; l++) {
         chKey = ref[l];
         collapseChildRow(h[chKey], h, opts);
-      }
-      if (childNumberToCollapse && h.descendants === childNumberToCollapse) {
-        h.originalText = h.text;
-        h.text = h.text + " -> " + h[ref[0]].text;
       }
       collapseShowRowSubtotal(h, opts);
       h.clickStatus = clickStatusCollapsed;
@@ -1545,8 +1543,16 @@ callWithJQuery(function($) {
     };
     expandChildRow = function(ch, opts) {
       var chKey, l, len, ref, results;
-      if (childNumberToCollapse && ch.descendants === childNumberToCollapse) {
-        ch.text = ch.originalText;
+      if (
+        childNumberToCollapse &&
+        childNumberToCollapse === ch.parent.descendants
+      ) {
+        let cellsToclear = ch.parent.tr.getElementsByClassName(
+          "pvtRowLabelFiller"
+        );
+        for (let cell of cellsToclear) {
+          cell.innerHTML = "";
+        }
       }
       if (
         ch.children.length !== 0 &&
@@ -1579,9 +1585,6 @@ callWithJQuery(function($) {
     };
     expandRow = function(axisHeaders, h, opts) {
       var ch, chKey, l, len, ref;
-      if (childNumberToCollapse && h.descendants === childNumberToCollapse) {
-        h.text = h.originalText;
-      }
       if (h.clickStatus === clickStatusExpanded) {
         adjustAxisHeader(axisHeaders, h.col, opts);
         return;
@@ -1622,6 +1625,33 @@ callWithJQuery(function($) {
               if (
                 h.clickStatus === clickStatusExpanded &&
                 h.children.length !== 0
+              ) {
+                results1.push(
+                  axisHeaders.collapseAttrHeader(axisHeaders, h, opts)
+                );
+              }
+            }
+            return results1;
+          })()
+        );
+      }
+      return results;
+    };
+    collapseChildRows = function(axisHeaders, col, attrs, opts) {
+      var collapsible, h, i, l, ref, ref1, results;
+      collapsible = Math.min(attrs.length - 2, opts.disableFrom - 1);
+      results = [];
+      for (i = l = ref = collapsible, ref1 = col; l >= ref1; i = l += -1) {
+        results.push(
+          (function() {
+            var len, o, ref2, results1;
+            ref2 = axisHeaders.ah[i].attrHeaders;
+            results1 = [];
+            for (o = 0, len = ref2.length; o < len; o++) {
+              h = ref2[o];
+              if (
+                h.clickStatus === clickStatusExpanded &&
+                h.descendants === childNumberToCollapse
               ) {
                 results1.push(
                   axisHeaders.collapseAttrHeader(axisHeaders, h, opts)
@@ -1802,6 +1832,7 @@ callWithJQuery(function($) {
         rowAttrs,
         opts.rowSubtotalDisplay
       );
+      collapseChildRows(rowAxisHeaders, 0, rowAttrs, opts.rowSubtotalDisplay);
       result.setAttribute("data-numrows", rowKeys.length);
       result.setAttribute("data-numcols", colKeys.length);
       result.style.display = "";
