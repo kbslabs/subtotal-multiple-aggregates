@@ -1,6 +1,6 @@
 {
   "name": "@kbs/subtotal-multiple-aggregates",
-  "version": "1.11.10",
+  "version": "1.11.11",
   "description": "Subtotal.js is a JavaScript plugin for PivotTable.js. It renders subtotals of rows and columns with the ability to expand and collapse rows.",
   "main": "src/subtotal.js",
   "scripts": {
