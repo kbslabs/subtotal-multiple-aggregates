@@ -1,7 +1,7 @@
 import flatten from "array-flatten";
 
 let hasProp = {}.hasOwnProperty;
-let callWithJQuery = function(pivotModule) {
+let callWithJQuery = function (pivotModule) {
   if (typeof exports === "object" && typeof module === "object") {
     // CommonJS
     return (module.exports = pivotModule);
@@ -14,7 +14,7 @@ let callWithJQuery = function(pivotModule) {
   }
 };
 
-callWithJQuery(function($) {
+callWithJQuery(function ($) {
   var LOOKER_ROW_TOTAL_KEY,
     SubtotalPivotDataMulti,
     SubtotalRenderer,
@@ -22,7 +22,7 @@ callWithJQuery(function($) {
     subtotalAggregatorTemplates,
     usFmtPct;
   LOOKER_ROW_TOTAL_KEY = "$$$_row_total_$$$";
-  SubtotalPivotDataMulti = function() {
+  SubtotalPivotDataMulti = function () {
     var processKey;
 
     class SubtotalPivotDataMulti extends $.pivotUtilities.PivotData {
@@ -43,7 +43,7 @@ callWithJQuery(function($) {
         this.aggregators =
           (ref4 = opts.aggregators) != null
             ? ref4
-            : function() {
+            : function () {
                 var l, len, ref5, results;
                 ref5 = this.aggregatorNames;
                 results = [];
@@ -69,7 +69,7 @@ callWithJQuery(function($) {
         SubtotalPivotDataMulti.forEachRecord(
           this.input,
           this.derivedAttributes,
-          record => {
+          (record) => {
             if (this.filter(record)) {
               return this.processRecord(record);
             }
@@ -256,7 +256,7 @@ callWithJQuery(function($) {
       }
     }
 
-    processKey = function(record, totals, keys, attrs, getAggregator) {
+    processKey = function (record, totals, keys, attrs, getAggregator) {
       var addKey, attr, flatKey, key, l, len, ref;
       key = [];
       addKey = false;
@@ -279,7 +279,7 @@ callWithJQuery(function($) {
     return SubtotalPivotDataMulti;
   }.call(this);
   $.pivotUtilities.SubtotalPivotDataMulti = SubtotalPivotDataMulti;
-  SubtotalRenderer = function(pivotData, opts) {
+  SubtotalRenderer = function (pivotData, opts) {
     var childNumberToCollapse,
       addClass,
       adjustAxisHeader,
@@ -361,11 +361,11 @@ callWithJQuery(function($) {
       useLookerRowTotals;
     defaults = {
       table: {
-        clickCallback: null
+        clickCallback: null,
       },
       localeStrings: {
         totals: "Totals",
-        subtotalOf: "Subtotal of"
+        subtotalOf: "Subtotal of",
       },
       arrowCollapsed: "\u25B6",
       arrowExpanded: "\u25E2",
@@ -374,16 +374,16 @@ callWithJQuery(function($) {
         disableFrom: 99999,
         collapseAt: 99999,
         hideOnExpand: true,
-        disableExpandCollapse: false
+        disableExpandCollapse: false,
       },
       colSubtotalDisplay: {
         displayOnTop: true,
         disableFrom: 0,
         collapseAt: 0,
         hideOnExpand: false,
-        disableExpandCollapse: false
+        disableExpandCollapse: false,
       },
-      showSubtotalFromIndex: 0 
+      showSubtotalFromIndex: 0,
     };
     opts = $.extend(true, {}, defaults, opts);
     if (opts.rowSubtotalDisplay.disableSubtotal) {
@@ -451,14 +451,14 @@ callWithJQuery(function($) {
     arrowExpanded = opts.arrowExpanded;
     arrowCollapsed = opts.arrowCollapsed;
     childNumberToCollapse = 1;
-    showSubtotalFromIndex = opts.showSubtotalFromIndex; //when rowSubtotalDisplay.hideOnExpand is true, this force subtotal row show usign columns indexes. 
+    showSubtotalFromIndex = opts.showSubtotalFromIndex; //when rowSubtotalDisplay.hideOnExpand is true, this force subtotal row show usign columns indexes.
     // Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- Begin
-    hasClass = function(element, className) {
+    hasClass = function (element, className) {
       var regExp;
       regExp = new RegExp("(?:^|\\s)" + className + "(?!\\S)", "g");
       return element.className.match(regExp) !== null;
     };
-    removeClass = function(element, className) {
+    removeClass = function (element, className) {
       var l, len, name, ref, regExp, results;
       ref = className.split(" ");
       results = [];
@@ -471,7 +471,7 @@ callWithJQuery(function($) {
       }
       return results;
     };
-    addClass = function(element, className) {
+    addClass = function (element, className) {
       var l, len, name, ref, results;
       ref = className.split(" ");
       results = [];
@@ -485,12 +485,12 @@ callWithJQuery(function($) {
       }
       return results;
     };
-    replaceClass = function(element, replaceClassName, byClassName) {
+    replaceClass = function (element, replaceClassName, byClassName) {
       removeClass(element, replaceClassName);
       return addClass(element, byClassName);
     };
     // Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- End
-    escapeHtml = function(unsafe) {
+    escapeHtml = function (unsafe) {
       return unsafe
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -498,11 +498,11 @@ callWithJQuery(function($) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     };
-    parseLabel = function(parts) {
+    parseLabel = function (parts) {
       var append, out;
       // Safe way to insert stylized labels. Parts can be a string or object { label, subabel }, or array as such.
       out = "";
-      append = function(value) {
+      append = function (value) {
         var l, len, results, x;
         if (Array.isArray(value)) {
           results = [];
@@ -523,7 +523,7 @@ callWithJQuery(function($) {
       append(parts);
       return out;
     };
-    createElement = function(
+    createElement = function (
       elementType,
       className,
       label,
@@ -552,7 +552,7 @@ callWithJQuery(function($) {
       }
       return e;
     };
-    setAttributes = function(e, attrs) {
+    setAttributes = function (e, attrs) {
       var a, results, v;
       results = [];
       for (a in attrs) {
@@ -562,11 +562,11 @@ callWithJQuery(function($) {
       }
       return results;
     };
-    processKeys = function(keysArr, className, opts) {
+    processKeys = function (keysArr, className, opts) {
       var headers, lastIdx, row;
       lastIdx = keysArr[0].length - 1;
       headers = {
-        children: []
+        children: [],
       };
       row = 0;
       keysArr.reduce((val0, k0) => {
@@ -588,7 +588,7 @@ callWithJQuery(function($) {
               leaves: 0,
               parent: col !== 0 ? acc : null,
               th: createElement("th", className, curVal),
-              childrenSpan: 0
+              childrenSpan: 0,
             };
             acc.children.push(curVal);
           }
@@ -621,7 +621,7 @@ callWithJQuery(function($) {
       }, headers);
       return headers;
     };
-    buildAxisHeader = function(axisHeaders, col, attrs, opts) {
+    buildAxisHeader = function (axisHeaders, col, attrs, opts) {
       var ah, arrow, hClass, ref;
       ah = {
         text: (ref = labels[attrs[col]]) != null ? ref : attrs[col],
@@ -629,7 +629,7 @@ callWithJQuery(function($) {
         expandables: 0,
         attrHeaders: [],
         clickStatus: clickStatusExpanded,
-        onClick: collapseAxis
+        onClick: collapseAxis,
       };
       arrow = `${arrowExpanded} `;
       hClass = classExpanded;
@@ -652,7 +652,7 @@ callWithJQuery(function($) {
         col < opts.disableFrom &&
         !opts.disableExpandCollapse
       ) {
-        ah.th.onclick = function(event) {
+        ah.th.onclick = function (event) {
           event = event || window.event;
           return ah.onClick(axisHeaders, col, attrs, opts);
         };
@@ -660,12 +660,12 @@ callWithJQuery(function($) {
       axisHeaders.ah.push(ah);
       return ah;
     };
-    buildColAxisHeaders = function(thead, rowAttrs, colAttrs, opts) {
+    buildColAxisHeaders = function (thead, rowAttrs, colAttrs, opts) {
       var ah, attr, axisHeaders, col, l, len;
       axisHeaders = {
         collapseAttrHeader: collapseCol,
         expandAttrHeader: expandCol,
-        ah: []
+        ah: [],
       };
       for (col = l = 0, len = colAttrs.length; l < len; col = ++l) {
         attr = colAttrs[col];
@@ -682,13 +682,13 @@ callWithJQuery(function($) {
       }
       return axisHeaders;
     };
-    buildRowAxisHeaders = function(thead, rowAttrs, colAttrs, opts) {
+    buildRowAxisHeaders = function (thead, rowAttrs, colAttrs, opts) {
       var ah, axisHeaders, col, l, ref;
       axisHeaders = {
         collapseAttrHeader: collapseRow,
         expandAttrHeader: expandRow,
         ah: [],
-        tr: createElement("tr", "pvtRowAxisHeaders")
+        tr: createElement("tr", "pvtRowAxisHeaders"),
       };
       for (
         col = l = 0, ref = rowAttrs.length - 1;
@@ -706,7 +706,7 @@ callWithJQuery(function($) {
       thead.appendChild(axisHeaders.tr);
       return axisHeaders;
     };
-    getHeaderText = function(h, attrs, opts) {
+    getHeaderText = function (h, attrs, opts) {
       var arrow, label;
       arrow = ` ${arrowExpanded} `;
       if (
@@ -720,7 +720,7 @@ callWithJQuery(function($) {
       label = h.text === LOOKER_ROW_TOTAL_KEY ? "Total" : h.text;
       return `${arrow}${label}`;
     };
-    buildColHeader = function(
+    buildColHeader = function (
       axisHeaders,
       attrHeaders,
       h,
@@ -769,7 +769,7 @@ callWithJQuery(function($) {
           h.th.colSpan++;
         }
         if (!opts.colSubtotalDisplay.disableExpandCollapse) {
-          h.th.onclick = function(event) {
+          h.th.onclick = function (event) {
             event = event || window.event;
             return h.onClick(axisHeaders, h, opts.colSubtotalDisplay);
           };
@@ -798,7 +798,7 @@ callWithJQuery(function($) {
         } else {
           ah.tr.appendChild(
             createElement("th", null, null, {
-              colspan: aggregatorNames.length
+              colspan: aggregatorNames.length,
             })
           );
         }
@@ -809,12 +809,12 @@ callWithJQuery(function($) {
       attrHeaders.push(h);
       return node.counter++;
     };
-    buildRowTotalsHeader = function(tr, colKeyHeaders, rowAttrs, colAttrs) {
+    buildRowTotalsHeader = function (tr, colKeyHeaders, rowAttrs, colAttrs) {
       var addHeaders, child, l, len, len1, len2, len3, name, o, q, r, ref, th;
       if (colAttrs.length > 0) {
         // We have pivots.
         if (colKeyHeaders) {
-          addHeaders = function(headers) {
+          addHeaders = function (headers) {
             var child, l, len, len1, name, o, ref, results, results1, th;
             if (headers.children.length > 0) {
               ref = headers.children;
@@ -861,7 +861,7 @@ callWithJQuery(function($) {
           }
         } else {
           th = createElement("th", "pvtColLabel pvtColTotal", "Total*", {
-            colspan: aggregatorNames.length
+            colspan: aggregatorNames.length,
           });
           tr.appendChild(th);
         }
@@ -875,7 +875,7 @@ callWithJQuery(function($) {
       }
     };
     lastPivotHeader = null;
-    buildRowHeader = function(
+    buildRowHeader = function (
       tbody,
       axisHeaders,
       attrHeaders,
@@ -937,7 +937,7 @@ callWithJQuery(function($) {
         ++ah.expandedCount;
         ++ah.expandables;
         if (!opts.rowSubtotalDisplay.disableExpandCollapse) {
-          h.th.onclick = function(event) {
+          h.th.onclick = function (event) {
             event = event || window.event;
             return h.onClick(axisHeaders, h, opts.rowSubtotalDisplay);
           };
@@ -951,7 +951,10 @@ callWithJQuery(function($) {
             "th",
             `pvtRowLabelFiller row${h.row} rowcol${h.col} ${classRowExpanded} ${classRowShow}`
           );
-          if (opts.rowSubtotalDisplay.hideOnExpand && h.col > showSubtotalFromIndex) {
+          if (
+            opts.rowSubtotalDisplay.hideOnExpand &&
+            h.col > showSubtotalFromIndex
+          ) {
             replaceClass(h.sTh, classRowShow, classRowHide);
           }
           h.sTh.setAttribute("data-rownode", h.node);
@@ -976,7 +979,7 @@ callWithJQuery(function($) {
       attrHeaders.push(h);
       return node.counter++;
     };
-    getTableEventHandlers = function(
+    getTableEventHandlers = function (
       value,
       rowKey,
       colKey,
@@ -1008,13 +1011,13 @@ callWithJQuery(function($) {
             filters[attr] = rowKey[i];
           }
         }
-        eventHandlers[event] = function(e) {
+        eventHandlers[event] = function (e) {
           return handler(e, value, filters, pivotData);
         };
       }
       return eventHandlers;
     };
-    buildValues = function(
+    buildValues = function (
       tbody,
       colAttrHeaders,
       rowAttrHeaders,
@@ -1055,9 +1058,11 @@ callWithJQuery(function($) {
         rCls = `pvtVal row${rh.row} rowcol${rh.col} ${classRowExpanded}`;
         if (rh.children.length > 0) {
           rCls += " pvtRowSubtotal";
-          rCls += opts.rowSubtotalDisplay.hideOnExpand && rh.col > showSubtotalFromIndex
-            ? ` ${classRowHide}`
-            : `  ${classRowShow}`;
+          rCls +=
+            opts.rowSubtotalDisplay.hideOnExpand &&
+            rh.col > showSubtotalFromIndex
+              ? ` ${classRowHide}`
+              : `  ${classRowShow}`;
         } else {
           rCls += ` ${classRowShow}`;
         }
@@ -1077,12 +1082,12 @@ callWithJQuery(function($) {
               aggregator = reference
                 ? reference
                 : {
-                    value: function() {
+                    value: function () {
                       return null;
                     },
-                    format: function() {
+                    format: function () {
                       return "";
-                    }
+                    },
                   };
               val = aggregator.value();
               cls = ` ${rCls} col${ch.row} colcol${ch.col} ${classColExpanded}`;
@@ -1101,7 +1106,7 @@ callWithJQuery(function($) {
                 {
                   "data-value": val,
                   "data-rownode": rh.node,
-                  "data-colnode": ch.node
+                  "data-colnode": ch.node,
                 },
                 getTableEventHandlers(
                   val,
@@ -1130,7 +1135,7 @@ callWithJQuery(function($) {
                 "data-value": val,
                 "data-row": `row${rh.row}`,
                 "data-rowcol": `col${rh.col}`,
-                "data-rownode": rh.node
+                "data-rownode": rh.node,
               }
             );
             getTableEventHandlers(val, rh.key, [], rowAttrs, colAttrs, opts);
@@ -1139,7 +1144,7 @@ callWithJQuery(function($) {
         }
       }
     };
-    buildColTotalsHeader = function(rowAttrs, colAttrs) {
+    buildColTotalsHeader = function (rowAttrs, colAttrs) {
       var colspan, th, tr;
       tr = createElement("tr", "pvtRowTotal");
       colspan = rowAttrs.length;
@@ -1148,13 +1153,13 @@ callWithJQuery(function($) {
         "pvtTotalLabel colTotal",
         opts.localeStrings.totals,
         {
-          colspan: colspan
+          colspan: colspan,
         }
       );
       tr.appendChild(th);
       return tr;
     };
-    buildColTotals = function(tr, attrHeaders, rowAttrs, colAttrs, opts) {
+    buildColTotals = function (tr, attrHeaders, rowAttrs, colAttrs, opts) {
       var clsNames, h, i, l, len, len1, name, o, td, totalAggregator, val;
       for (l = 0, len = attrHeaders.length; l < len; l++) {
         h = attrHeaders[l];
@@ -1187,7 +1192,7 @@ callWithJQuery(function($) {
             {
               "data-value": val,
               "data-for": `col${h.col}`,
-              "data-colnode": `${h.node}`
+              "data-colnode": `${h.node}`,
             },
             getTableEventHandlers(val, [], h.key, rowAttrs, colAttrs, opts)
           );
@@ -1195,7 +1200,7 @@ callWithJQuery(function($) {
         }
       }
     };
-    buildGrandTotal = function(tbody, tr, rowAttrs, colAttrs, opts) {
+    buildGrandTotal = function (tbody, tr, rowAttrs, colAttrs, opts) {
       var l, len, name, results, td, totalAggregator, val;
       results = [];
       for (l = 0, len = aggregatorNames.length; l < len; l++) {
@@ -1207,7 +1212,7 @@ callWithJQuery(function($) {
           "pvtGrandTotal",
           totalAggregator.format(val),
           {
-            "data-value": val
+            "data-value": val,
           },
           getTableEventHandlers(val, [], [], rowAttrs, colAttrs, opts)
         );
@@ -1215,7 +1220,7 @@ callWithJQuery(function($) {
       }
       return results;
     };
-    collapseAxisHeaders = function(axisHeaders, col, opts) {
+    collapseAxisHeaders = function (axisHeaders, col, opts) {
       var ah, collapsible, i, l, ref, ref1, results;
       collapsible = Math.min(axisHeaders.ah.length - 2, opts.disableFrom - 1);
       if (col > collapsible) {
@@ -1235,7 +1240,7 @@ callWithJQuery(function($) {
       }
       return results;
     };
-    adjustAxisHeader = function(axisHeaders, col, opts) {
+    adjustAxisHeader = function (axisHeaders, col, opts) {
       var ah;
       ah = axisHeaders.ah[col];
       if (ah.expandedCount === 0) {
@@ -1247,7 +1252,7 @@ callWithJQuery(function($) {
         return (ah.onClick = collapseAxis);
       }
     };
-    hideChildCol = function(ch) {
+    hideChildCol = function (ch) {
       return $(ch.th)
         .closest("table.pvtTable")
         .find(
@@ -1256,7 +1261,7 @@ callWithJQuery(function($) {
         .removeClass(classColShow)
         .addClass(classColHide);
     };
-    collapseHiddenColSubtotal = function(h, opts) {
+    collapseHiddenColSubtotal = function (h, opts) {
       $(h.th)
         .closest("table.pvtTable")
         .find(
@@ -1269,7 +1274,7 @@ callWithJQuery(function($) {
       }
       return (h.th.colSpan = 1);
     };
-    collapseShowColSubtotal = function(h, opts) {
+    collapseShowColSubtotal = function (h, opts) {
       $(h.th)
         .closest("table.pvtTable")
         .find(
@@ -1284,7 +1289,7 @@ callWithJQuery(function($) {
       }
       return (h.th.colSpan = 1);
     };
-    collapseChildCol = function(ch, h) {
+    collapseChildCol = function (ch, h) {
       var chKey, l, len, ref;
       ref = ch.children;
       for (l = 0, len = ref.length; l < len; l++) {
@@ -1295,7 +1300,7 @@ callWithJQuery(function($) {
       }
       return hideChildCol(ch);
     };
-    collapseCol = function(axisHeaders, h, opts) {
+    collapseCol = function (axisHeaders, h, opts) {
       var chKey, colSpan, l, len, p, ref;
       colSpan = h.th.colSpan - 1;
       ref = h.children;
@@ -1322,7 +1327,7 @@ callWithJQuery(function($) {
       axisHeaders.ah[h.col].expandedCount--;
       return adjustAxisHeader(axisHeaders, h.col, opts);
     };
-    showChildCol = function(ch) {
+    showChildCol = function (ch) {
       return $(ch.th)
         .closest("table.pvtTable")
         .find(
@@ -1331,7 +1336,7 @@ callWithJQuery(function($) {
         .removeClass(classColHide)
         .addClass(classColShow);
     };
-    expandHideColSubtotal = function(h) {
+    expandHideColSubtotal = function (h) {
       $(h.th)
         .closest("table.pvtTable")
         .find(
@@ -1342,7 +1347,7 @@ callWithJQuery(function($) {
       replaceClass(h.th, classColHide, classColShow);
       return (h.th.innerHTML = ` ${arrowExpanded} ${h.text}`);
     };
-    expandShowColSubtotal = function(h) {
+    expandShowColSubtotal = function (h) {
       $(h.th)
         .closest("table.pvtTable")
         .find(
@@ -1353,7 +1358,7 @@ callWithJQuery(function($) {
       h.th.colSpan++;
       return (h.th.innerHTML = ` ${arrowExpanded} ${h.text}`);
     };
-    expandChildCol = function(ch, opts) {
+    expandChildCol = function (ch, opts) {
       var chKey, l, len, ref, results;
       if (
         ch.children.length !== 0 &&
@@ -1384,7 +1389,7 @@ callWithJQuery(function($) {
         return results;
       }
     };
-    expandCol = function(axisHeaders, h, opts) {
+    expandCol = function (axisHeaders, h, opts) {
       var ch, chKey, colSpan, l, len, p, ref;
       if (h.clickStatus === clickStatusExpanded) {
         adjustAxisHeader(axisHeaders, h.col, opts);
@@ -1400,7 +1405,7 @@ callWithJQuery(function($) {
       }
       h.th.colSpan = colSpan;
       if (h.col < opts.disableFrom) {
-        if (opts.hideOnExpand  && h.col > showSubtotalFromIndex) {
+        if (opts.hideOnExpand && h.col > showSubtotalFromIndex) {
           expandHideColSubtotal(h);
           --colSpan;
         } else {
@@ -1417,7 +1422,7 @@ callWithJQuery(function($) {
       axisHeaders.ah[h.col].expandedCount++;
       return adjustAxisHeader(axisHeaders, h.col, opts);
     };
-    hideChildRow = function(ch, opts) {
+    hideChildRow = function (ch, opts) {
       var cell, l, len, len1, o, ref, ref1, results;
       ref = ch.tr.querySelectorAll("th, td");
       for (l = 0, len = ref.length; l < len; l++) {
@@ -1434,7 +1439,7 @@ callWithJQuery(function($) {
         return results;
       }
     };
-    collapseShowRowSubtotal = function(h, opts) {
+    collapseShowRowSubtotal = function (h, opts) {
       var cell, l, len, len1, o, ref, ref1, results;
       if (childNumberToCollapse && h.descendants === childNumberToCollapse) {
         h.th.innerHTML = ` ${h.text}`;
@@ -1458,14 +1463,14 @@ callWithJQuery(function($) {
         return results;
       }
     };
-    collapseChildRow = function(ch, h, opts) {
+    collapseChildRow = function (ch, h, opts) {
       var chKey, l, len, ref;
       ref = ch.children;
       for (l = 0, len = ref.length; l < len; l++) {
         chKey = ref[l];
         collapseChildRow(ch[chKey], h, opts);
       }
-      if (childNumberToCollapse && childNumberToCollapse === h.descendants)  {
+      if (childNumberToCollapse && childNumberToCollapse === h.descendants) {
         if (ch.parent === h) {
           let newCell = ch.parent.tr.cells[1];
           newCell.innerHTML = ch.text;
@@ -1476,7 +1481,7 @@ callWithJQuery(function($) {
       }
       return hideChildRow(ch, opts);
     };
-    collapseRow = function(axisHeaders, h, opts) {
+    collapseRow = function (axisHeaders, h, opts) {
       var chKey, l, len, ref;
       ref = h.children;
       for (l = 0, len = ref.length; l < len; l++) {
@@ -1489,7 +1494,7 @@ callWithJQuery(function($) {
       axisHeaders.ah[h.col].expandedCount--;
       return adjustAxisHeader(axisHeaders, h.col, opts);
     };
-    showChildRow = function(ch, opts) {
+    showChildRow = function (ch, opts) {
       var cell, l, len, len1, o, ref, ref1, results;
       ref = ch.tr.querySelectorAll("th, td");
       for (l = 0, len = ref.length; l < len; l++) {
@@ -1506,7 +1511,7 @@ callWithJQuery(function($) {
         return results;
       }
     };
-    expandShowRowSubtotal = function(h, opts) {
+    expandShowRowSubtotal = function (h, opts) {
       var cell, l, len, len1, o, ref, ref1, results;
       h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
       ref = h.tr.querySelectorAll("th, td");
@@ -1526,7 +1531,7 @@ callWithJQuery(function($) {
         return results;
       }
     };
-    expandHideRowSubtotal = function(h, opts) {
+    expandHideRowSubtotal = function (h, opts) {
       var cell, l, len, len1, o, ref, ref1, results;
       h.th.innerHTML = ` ${arrowExpanded} ${h.text}`;
       ref = h.tr.querySelectorAll("th, td");
@@ -1548,7 +1553,7 @@ callWithJQuery(function($) {
         return results;
       }
     };
-    expandChildRow = function(ch, opts) {
+    expandChildRow = function (ch, opts) {
       var chKey, l, len, ref, results;
       if (
         childNumberToCollapse &&
@@ -1590,14 +1595,14 @@ callWithJQuery(function($) {
         return results;
       }
     };
-    expandRow = function(axisHeaders, h, opts) {
+    expandRow = function (axisHeaders, h, opts) {
       var ch, chKey, l, len, ref;
       if (h.clickStatus === clickStatusExpanded) {
         adjustAxisHeader(axisHeaders, h.col, opts);
         return;
       }
       ref = h.children;
-      if(h.descendants > childNumberToCollapse) {
+      if (h.descendants > childNumberToCollapse) {
         for (l = 0, len = ref.length; l < len; l++) {
           chKey = ref[l];
           ch = h[chKey];
@@ -1616,7 +1621,7 @@ callWithJQuery(function($) {
       axisHeaders.ah[h.col].expandedCount++;
       return adjustAxisHeader(axisHeaders, h.col, opts);
     };
-    collapseAxis = function(axisHeaders, col, attrs, opts) {
+    collapseAxis = function (axisHeaders, col, attrs, opts) {
       var collapsible, h, i, l, ref, ref1, results;
       collapsible = Math.min(attrs.length - 2, opts.disableFrom - 1);
       if (col > collapsible) {
@@ -1625,7 +1630,7 @@ callWithJQuery(function($) {
       results = [];
       for (i = l = ref = collapsible, ref1 = col; l >= ref1; i = l += -1) {
         results.push(
-          (function() {
+          (function () {
             var len, o, ref2, results1;
             ref2 = axisHeaders.ah[i].attrHeaders;
             results1 = [];
@@ -1646,13 +1651,13 @@ callWithJQuery(function($) {
       }
       return results;
     };
-    collapseChildRows = function(axisHeaders, col, attrs, opts) {
+    collapseChildRows = function (axisHeaders, col, attrs, opts) {
       var collapsible, h, i, l, ref, ref1, results;
       collapsible = Math.min(attrs.length - 2, opts.disableFrom - 1);
       results = [];
       for (i = l = ref = collapsible, ref1 = col; l >= ref1; i = l += -1) {
         results.push(
-          (function() {
+          (function () {
             var len, o, ref2, results1;
             ref2 = axisHeaders.ah[i].attrHeaders;
             results1 = [];
@@ -1673,7 +1678,7 @@ callWithJQuery(function($) {
       }
       return results;
     };
-    expandAxis = function(axisHeaders, col, attrs, opts) {
+    expandAxis = function (axisHeaders, col, attrs, opts) {
       var ah, h, i, l, ref, results;
       ah = axisHeaders.ah[col];
       results = [];
@@ -1683,7 +1688,7 @@ callWithJQuery(function($) {
         i = 0 <= ref ? ++l : --l
       ) {
         results.push(
-          (function() {
+          (function () {
             var len, o, ref1, results1;
             ref1 = axisHeaders.ah[i].attrHeaders;
             results1 = [];
@@ -1698,7 +1703,7 @@ callWithJQuery(function($) {
       return results;
     };
     // when h.clickStatus is clickStatusCollapsed and h.children.length isnt 0 for i in [0..col]
-    main = function(rowAttrs, rowKeys, colAttrs, colKeys) {
+    main = function (rowAttrs, rowKeys, colAttrs, colKeys) {
       var ah,
         chKey,
         colAttrHeaders,
@@ -1733,7 +1738,7 @@ callWithJQuery(function($) {
       }
       if (colKeyHeaders && !useLookerRowTotals) {
         delete colKeyHeaders[LOOKER_ROW_TOTAL_KEY];
-        colKeyHeaders.children = colKeyHeaders.children.filter(function(k) {
+        colKeyHeaders.children = colKeyHeaders.children.filter(function (k) {
           return k !== LOOKER_ROW_TOTAL_KEY;
         });
       }
@@ -1745,14 +1750,14 @@ callWithJQuery(function($) {
         tableClasses += " pvtHasColTotals";
       }
       result = createElement("table", tableClasses, null, {
-        style: "display: none;"
+        style: "display: none;",
       });
       thead = createElement("thead");
       result.appendChild(thead);
       if (colAttrs.length !== 0) {
         colAxisHeaders = buildColAxisHeaders(thead, rowAttrs, colAttrs, opts);
         node = {
-          counter: 0
+          counter: 0,
         };
         ref = colKeyHeaders.children;
         for (l = 0, len = ref.length; l < len; l++) {
@@ -1776,7 +1781,7 @@ callWithJQuery(function($) {
             } else {
               ah.tr.appendChild(
                 createElement("th", "pvtColTotalFiller", null, {
-                  colspan: colAttrs.length
+                  colspan: colAttrs.length,
                 })
               );
             }
@@ -1794,7 +1799,7 @@ callWithJQuery(function($) {
           colAttrs
         );
         node = {
-          counter: 0
+          counter: 0,
         };
         ref2 = rowKeyHeaders.children;
         for (q = 0, len2 = ref2.length; q < len2; q++) {
@@ -1850,21 +1855,21 @@ callWithJQuery(function($) {
     return main(rowAttrs, rowKeys, colAttrs, colKeys);
   };
   $.pivotUtilities.subtotal_renderers = {
-    "Table With Subtotal": function(pvtData, opts) {
+    "Table With Subtotal": function (pvtData, opts) {
       return SubtotalRenderer(pvtData, opts);
     },
-    "Table With Subtotal Bar Chart": function(pvtData, opts) {
+    "Table With Subtotal Bar Chart": function (pvtData, opts) {
       return $(SubtotalRenderer(pvtData, opts)).barchart();
     },
-    "Table With Subtotal Heatmap": function(pvtData, opts) {
+    "Table With Subtotal Heatmap": function (pvtData, opts) {
       return $(SubtotalRenderer(pvtData, opts)).heatmap("heatmap", opts);
     },
-    "Table With Subtotal Row Heatmap": function(pvtData, opts) {
+    "Table With Subtotal Row Heatmap": function (pvtData, opts) {
       return $(SubtotalRenderer(pvtData, opts)).heatmap("rowheatmap", opts);
     },
-    "Table With Subtotal Col Heatmap": function(pvtData, opts) {
+    "Table With Subtotal Col Heatmap": function (pvtData, opts) {
       return $(SubtotalRenderer(pvtData, opts)).heatmap("colheatmap", opts);
-    }
+    },
   };
 
   // Aggregators
@@ -1872,13 +1877,13 @@ callWithJQuery(function($) {
   usFmtPct = $.pivotUtilities.numberFormat({
     digitsAfterDecimal: 1,
     scaler: 100,
-    suffix: "%"
+    suffix: "%",
   });
   aggregatorTemplates = $.pivotUtilities.aggregatorTemplates;
   subtotalAggregatorTemplates = {
-    fractionOf: function(wrapped, type = "row", formatter = usFmtPct) {
-      return function(...x) {
-        return function(data, rowKey, colKey) {
+    fractionOf: function (wrapped, type = "row", formatter = usFmtPct) {
+      return function (...x) {
+        return function (data, rowKey, colKey) {
           if (typeof rowKey === "undefined") {
             rowKey = [];
           }
@@ -1888,27 +1893,27 @@ callWithJQuery(function($) {
           return {
             selector: {
               row: [rowKey.slice(0, -1), []],
-              col: [[], colKey.slice(0, -1)]
+              col: [[], colKey.slice(0, -1)],
             }[type],
             inner: wrapped(...x)(data, rowKey, colKey),
-            push: function(record) {
+            push: function (record) {
               return this.inner.push(record);
             },
             format: formatter,
-            value: function() {
+            value: function () {
               return (
                 this.inner.value() /
                 data.getAggregator(...this.selector).inner.value()
               );
             },
-            numInputs: wrapped(...x)().numInputs
+            numInputs: wrapped(...x)().numInputs,
           };
         };
       };
-    }
+    },
   };
   $.pivotUtilities.subtotalAggregatorTemplates = subtotalAggregatorTemplates;
-  return ($.pivotUtilities.subtotal_aggregators = (function(tpl, sTpl) {
+  return ($.pivotUtilities.subtotal_aggregators = (function (tpl, sTpl) {
     return {
       "Sum As Fraction Of Parent Row": sTpl.fractionOf(
         tpl.sum(),
@@ -1929,7 +1934,7 @@ callWithJQuery(function($) {
         tpl.count(),
         "col",
         usFmtPct
-      )
+      ),
     };
   })(aggregatorTemplates, subtotalAggregatorTemplates));
 });
