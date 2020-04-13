@@ -356,6 +356,7 @@ callWithJQuery(function($) {
       setAttributes,
       showChildCol,
       showChildRow,
+      showSubtotalFromIndex,
       tree,
       useLookerRowTotals;
     defaults = {
@@ -372,7 +373,7 @@ callWithJQuery(function($) {
         displayOnTop: true,
         disableFrom: 99999,
         collapseAt: 99999,
-        hideOnExpand: false,
+        hideOnExpand: true,
         disableExpandCollapse: false
       },
       colSubtotalDisplay: {
@@ -381,7 +382,8 @@ callWithJQuery(function($) {
         collapseAt: 0,
         hideOnExpand: false,
         disableExpandCollapse: false
-      }
+      },
+      showSubtotalFromIndex: 0 
     };
     opts = $.extend(true, {}, defaults, opts);
     if (opts.rowSubtotalDisplay.disableSubtotal) {
@@ -449,6 +451,7 @@ callWithJQuery(function($) {
     arrowExpanded = opts.arrowExpanded;
     arrowCollapsed = opts.arrowCollapsed;
     childNumberToCollapse = 1;
+    showSubtotalFromIndex = opts.showSubtotalFromIndex; //when rowSubtotalDisplay.hideOnExpand is true, this force subtotal row show usign columns indexes. 
     // Based on http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript -- Begin
     hasClass = function(element, className) {
       var regExp;
@@ -948,7 +951,7 @@ callWithJQuery(function($) {
             "th",
             `pvtRowLabelFiller row${h.row} rowcol${h.col} ${classRowExpanded} ${classRowShow}`
           );
-          if (opts.rowSubtotalDisplay.hideOnExpand) {
+          if (opts.rowSubtotalDisplay.hideOnExpand && h.col > showSubtotalFromIndex) {
             replaceClass(h.sTh, classRowShow, classRowHide);
           }
           h.sTh.setAttribute("data-rownode", h.node);
@@ -1052,7 +1055,7 @@ callWithJQuery(function($) {
         rCls = `pvtVal row${rh.row} rowcol${rh.col} ${classRowExpanded}`;
         if (rh.children.length > 0) {
           rCls += " pvtRowSubtotal";
-          rCls += opts.rowSubtotalDisplay.hideOnExpand
+          rCls += opts.rowSubtotalDisplay.hideOnExpand && rh.col > showSubtotalFromIndex
             ? ` ${classRowHide}`
             : `  ${classRowShow}`;
         } else {
@@ -1397,7 +1400,7 @@ callWithJQuery(function($) {
       }
       h.th.colSpan = colSpan;
       if (h.col < opts.disableFrom) {
-        if (opts.hideOnExpand) {
+        if (opts.hideOnExpand  && h.col > showSubtotalFromIndex) {
           expandHideColSubtotal(h);
           --colSpan;
         } else {
@@ -1433,7 +1436,11 @@ callWithJQuery(function($) {
     };
     collapseShowRowSubtotal = function(h, opts) {
       var cell, l, len, len1, o, ref, ref1, results;
-      h.th.innerHTML = ` ${arrowCollapsed} ${h.text}`;
+      if (childNumberToCollapse && h.descendants === childNumberToCollapse) {
+        h.th.innerHTML = ` ${h.text}`;
+      } else {
+        h.th.innerHTML = ` ${arrowCollapsed} ${h.text}`;
+      }
       ref = h.tr.querySelectorAll("th, td");
       for (l = 0, len = ref.length; l < len; l++) {
         cell = ref[l];
@@ -1590,20 +1597,22 @@ callWithJQuery(function($) {
         return;
       }
       ref = h.children;
-      for (l = 0, len = ref.length; l < len; l++) {
-        chKey = ref[l];
-        ch = h[chKey];
-        expandChildRow(ch, opts);
-      }
-      if (h.children.length !== 0) {
-        if (opts.hideOnExpand) {
+      if(h.descendants > childNumberToCollapse) {
+        for (l = 0, len = ref.length; l < len; l++) {
+          chKey = ref[l];
+          ch = h[chKey];
+          expandChildRow(ch, opts);
+        }
+        if (opts.hideOnExpand && h.col > showSubtotalFromIndex) {
           expandHideRowSubtotal(h, opts);
         } else {
           expandShowRowSubtotal(h, opts);
         }
       }
-      h.clickStatus = clickStatusExpanded;
-      h.onClick = collapseRow;
+      if (ref.length !== 0) {
+        h.clickStatus = clickStatusExpanded;
+        h.onClick = collapseRow;
+      }
       axisHeaders.ah[h.col].expandedCount++;
       return adjustAxisHeader(axisHeaders, h.col, opts);
     };
